@@ -53,6 +53,7 @@ import {
 } from '../../types';
 import { formatPrice } from '../../utils/helpers';
 import { navigateTo } from '../../utils/router';
+import { ProfileDropdown } from '../ProfileDropdown';
 
 interface AdminDashboardProps {
   onNavigate?: (path: string) => void;
@@ -490,6 +491,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
           </div>
 
           <div className="flex items-center gap-2">
+            <ProfileDropdown isAdminContext={true} />
             <button
               type="button"
               onClick={() => {

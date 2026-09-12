@@ -1,29 +1,25 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   User,
-  Utensils,
-  BookOpen,
   MapPin,
   Phone,
   Clock,
   ChevronRight,
-  Shield,
-  ClipboardList,
   Package,
   LogOut,
-  Lock,
   ArrowLeft,
-  CheckCircle,
+  ChevronDown,
 } from 'lucide-react';
 import { useCafe } from '../context/CafeContext';
-import { navigateTo } from '../utils/router';
+import { CK_BRANCHES, Branch } from '../data/branchesData';
 
-export const ProfileDropdown: React.FC = () => {
+interface ProfileDropdownProps {
+  isAdminContext?: boolean;
+}
+
+export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ isAdminContext = false }) => {
   const {
-    setCurrentView,
     cafeSettings,
-    isAdminAuthenticated,
-    logoutAdmin,
   } = useCafe();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -33,6 +29,14 @@ export const ProfileDropdown: React.FC = () => {
   const [customerIdentifier, setCustomerIdentifier] = useState<string>(() => {
     return localStorage.getItem('ck_customer_id') || '';
   });
+
+  // Admin branch selector state (persisted via localStorage)
+  const [selectedBranchId, setSelectedBranchId] = useState<string>(() => {
+    return localStorage.getItem('ck_admin_selected_branch') || 'ck-dha-4';
+  });
+  const [isBranchDropdownOpen, setIsBranchDropdownOpen] = useState(false);
+
+  const selectedBranch = CK_BRANCHES.find((b) => b.id === selectedBranchId) || CK_BRANCHES[0];
 
   // Login inline form state
   const [showCustomerLoginForm, setShowCustomerLoginForm] = useState(false);
@@ -96,12 +100,6 @@ export const ProfileDropdown: React.FC = () => {
     setShowTracker(false);
   };
 
-  const handleAdminLogoutAction = () => {
-    logoutAdmin();
-    setIsOpen(false);
-    navigateTo('/');
-  };
-
   return (
     <div className="relative inline-flex items-center" ref={dropdownRef}>
       {/* Profile Trigger: Simple, Elegant Outline Profile Icon */}
@@ -121,7 +119,7 @@ export const ProfileDropdown: React.FC = () => {
         <User className="w-[18px] h-[18px] stroke-[1.6] transition-transform duration-300 group-hover:scale-105" />
         
         {/* Subtle dot indicator if logged in */}
-        {(isAdminAuthenticated || isCustomerLoggedIn) && (
+        {isCustomerLoggedIn && (
           <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-500 animate-pulse border border-[#030304]" />
         )}
       </button>
@@ -135,19 +133,72 @@ export const ProfileDropdown: React.FC = () => {
           {/* Header Status */}
           <div className="px-4 py-2 border-b border-neutral-800/60 mb-1.5">
             <span className="text-[9px] font-semibold tracking-[0.25em] uppercase text-amber-500/90 block">
-              {isAdminAuthenticated 
-                ? 'ADMINISTRATOR SESSION' 
-                : isCustomerLoggedIn 
-                  ? 'CUSTOMER PROFILE' 
-                  : 'GUEST SERVICES'}
+              {isCustomerLoggedIn 
+                ? 'CUSTOMER PROFILE' 
+                : 'GUEST SERVICES'}
             </span>
-            <p className="text-xs font-medium text-neutral-200 mt-0.5 truncate">
-              {isAdminAuthenticated 
-                ? 'Management Portal Active' 
-                : isCustomerLoggedIn 
+            {isAdminContext ? (
+              <div className="mt-1.5">
+                {/* Branch selector button */}
+                <button
+                  type="button"
+                  aria-expanded={isBranchDropdownOpen}
+                  aria-controls="admin-branch-selector-list"
+                  onClick={() => setIsBranchDropdownOpen(!isBranchDropdownOpen)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setIsBranchDropdownOpen(!isBranchDropdownOpen);
+                    } else if (e.key === 'Escape') {
+                      setIsBranchDropdownOpen(false);
+                    }
+                  }}
+                  className="w-full text-left flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-neutral-900 border border-neutral-800 hover:border-amber-500/50 hover:bg-neutral-850 text-neutral-200 text-[11px] transition-all duration-200 cursor-pointer focus:outline-hidden focus:border-amber-500 font-sans"
+                >
+                  <span className="font-light truncate">
+                    {selectedBranch ? `${selectedBranch.area} — ${selectedBranch.city}` : 'DHA Phase 4 — Rawalpindi'}
+                  </span>
+                  <ChevronDown className={`w-3.5 h-3.5 text-neutral-500 transition-transform duration-200 ${isBranchDropdownOpen ? 'rotate-180 text-amber-400' : ''}`} />
+                </button>
+
+                {/* Smooth Expandable Branch List */}
+                {isBranchDropdownOpen && (
+                  <div
+                    id="admin-branch-selector-list"
+                    className="mt-1.5 max-h-48 overflow-y-auto rounded-lg bg-neutral-950 border border-neutral-800/80 divide-y divide-neutral-900 py-1 transition-all duration-300 animate-fadeIn select-none custom-scrollbar"
+                  >
+                    {CK_BRANCHES.map((b) => {
+                      const isSelected = b.id === selectedBranchId;
+                      return (
+                        <button
+                          key={b.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedBranchId(b.id);
+                            localStorage.setItem('ck_admin_selected_branch', b.id);
+                            setIsBranchDropdownOpen(false);
+                          }}
+                          className={`w-full text-left px-3 py-2 text-[10.5px] font-light transition-colors cursor-pointer flex items-center justify-between ${
+                            isSelected
+                              ? 'bg-amber-950/40 text-amber-400 font-normal'
+                              : 'text-neutral-400 hover:text-white hover:bg-neutral-900'
+                          }`}
+                        >
+                          <span>{b.area} — {b.city}</span>
+                          {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-xs font-medium text-neutral-200 mt-0.5 truncate">
+                {isCustomerLoggedIn 
                   ? customerIdentifier 
                   : 'DHA Phase 4 • Rawalpindi'}
-            </p>
+              </p>
+            )}
           </div>
 
           <div className="px-1.5 space-y-0.5 text-xs">
@@ -220,8 +271,8 @@ export const ProfileDropdown: React.FC = () => {
             ) : (
               /* STANDARD MENU OPTIONS LIST */
               <>
-                {/* 1. Customer Login -> customer access (only visible if not already logged in as customer/admin) */}
-                {!isCustomerLoggedIn && !isAdminAuthenticated && (
+                {/* 1. Customer Login -> customer access (only visible if not already logged in as customer) */}
+                {!isCustomerLoggedIn && (
                   <button
                     id="dropdown-customer-login"
                     onClick={() => setShowCustomerLoginForm(true)}
@@ -235,46 +286,8 @@ export const ProfileDropdown: React.FC = () => {
                   </button>
                 )}
 
-                {/* 2. Admin Control Panel -> admin access (visible to admins, or anyone to trigger admin login screen) */}
-                <button
-                  id="dropdown-admin-portal"
-                  onClick={() => {
-                    setIsOpen(false);
-                    if (isAdminAuthenticated) {
-                      navigateTo('/admin');
-                    } else {
-                      navigateTo('/admin/login');
-                    }
-                  }}
-                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-neutral-300 hover:text-white hover:bg-neutral-800/60 transition-all duration-200 cursor-pointer group"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Shield className="w-3.5 h-3.5 text-neutral-400 group-hover:text-white transition-colors" />
-                    <span>Admin Control Panel</span>
-                  </div>
-                  <ChevronRight className="w-3 h-3 text-neutral-400 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
-                </button>
-
-                {/* 3. Orders -> admin only (visible only to authenticated admins) */}
-                {isAdminAuthenticated && (
-                  <button
-                    id="dropdown-admin-orders"
-                    onClick={() => {
-                      setIsOpen(false);
-                      navigateTo('/admin');
-                    }}
-                    className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-neutral-300 hover:text-white hover:bg-neutral-800/60 transition-all duration-200 cursor-pointer group"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <ClipboardList className="w-3.5 h-3.5 text-neutral-400 group-hover:text-white transition-colors" />
-                      <span>Orders</span>
-                    </div>
-                    <ChevronRight className="w-3 h-3 text-neutral-400 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
-                  </button>
-                )}
-
-                {/* 4. Track your order -> customers and admins */}
-                {(isCustomerLoggedIn || isAdminAuthenticated) ? (
+                {/* 4. Track your order -> customers only */}
+                {isCustomerLoggedIn && (
                   <button
                     id="dropdown-track-order"
                     onClick={() => {
@@ -287,21 +300,6 @@ export const ProfileDropdown: React.FC = () => {
                       <span>Track your order</span>
                     </div>
                     <ChevronRight className="w-3 h-3 text-neutral-400 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
-                  </button>
-                ) : (
-                  // If guest tries to click track, show a prompt
-                  <button
-                    id="dropdown-track-order-guest"
-                    onClick={() => {
-                      setShowCustomerLoginForm(true);
-                    }}
-                    className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-neutral-500 hover:text-neutral-300 hover:bg-neutral-850/30 transition-all duration-200 cursor-pointer group"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <Package className="w-3.5 h-3.5 text-neutral-500 group-hover:text-neutral-300 transition-colors" />
-                      <span>Track your order</span>
-                    </div>
-                    <ChevronRight className="w-3 h-3 text-neutral-500 group-hover:text-neutral-300 group-hover:translate-x-0.5 transition-all" />
                   </button>
                 )}
 
@@ -320,34 +318,27 @@ export const ProfileDropdown: React.FC = () => {
                   </button>
                 )}
 
-                {/* 6. Logout Admin -> admin only */}
-                {isAdminAuthenticated && (
-                  <button
-                    id="dropdown-admin-logout"
-                    onClick={handleAdminLogoutAction}
-                    className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-950/25 transition-all duration-200 cursor-pointer group"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <LogOut className="w-3.5 h-3.5 text-rose-400/80 group-hover:text-rose-300 transition-colors" />
-                      <span>Logout Admin</span>
-                    </div>
-                    <ChevronRight className="w-3 h-3 text-rose-400 group-hover:text-rose-300 group-hover:translate-x-0.5 transition-all" />
-                  </button>
-                )}
-
                 {/* Timings & Direct Phone */}
                 <div className="pt-2.5 mt-2 border-t border-neutral-800/60 px-3.5 py-1.5 space-y-1.5 text-[11px] text-neutral-400 text-left">
+                  {isAdminContext && selectedBranch ? (
+                    <div className="space-y-1.5 mb-1 text-neutral-500 font-light text-[10.5px]">
+                      <p className="flex items-start gap-2">
+                        <MapPin className="w-3 h-3 text-neutral-600 shrink-0 mt-0.5" />
+                        <span className="line-clamp-2">{selectedBranch.address}</span>
+                      </p>
+                    </div>
+                  ) : null}
                   <div className="flex items-center gap-2">
                     <Clock className="w-3 h-3 text-neutral-500 shrink-0" />
-                    <span>Daily: 8:00 AM – 1:00 AM</span>
+                    <span>{isAdminContext && selectedBranch ? selectedBranch.openingHours : 'Daily: 8:00 AM – 1:00 AM'}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Phone className="w-3 h-3 text-neutral-500 shrink-0" />
                     <a
-                      href={`tel:${cafeSettings.phone}`}
+                      href={`tel:${isAdminContext && selectedBranch ? selectedBranch.phone : cafeSettings.phone}`}
                       className="text-neutral-300 hover:text-white transition-colors"
                     >
-                      {cafeSettings.phone}
+                      {isAdminContext && selectedBranch ? selectedBranch.phone : cafeSettings.phone}
                     </a>
                   </div>
                 </div>
