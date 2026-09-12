@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import {
   Menu as MenuIcon,
   X,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { useCafe } from '../context/CafeContext';
 import { ProfileDropdown } from './ProfileDropdown';
@@ -11,6 +13,8 @@ export const Navbar: React.FC = () => {
     currentView,
     setCurrentView,
     cafeSettings,
+    theme,
+    toggleTheme,
   } = useCafe();
 
   const [isScrolled, setIsScrolled] = useState(false);
@@ -149,6 +153,21 @@ export const Navbar: React.FC = () => {
 
             {/* RIGHT: Profile Icon & Mobile Hamburger Toggle */}
             <div className="flex-1 flex items-center justify-end gap-3 sm:gap-4">
+              {/* Day/Night Theme Toggle */}
+              <button
+                id="theme-toggle-btn"
+                onClick={toggleTheme}
+                className="p-2 rounded-full text-neutral-400 hover:text-white hover:bg-white/[0.05] transition-all duration-300 cursor-pointer focus:outline-hidden flex items-center justify-center"
+                aria-label={theme === 'dark' ? 'Switch to Day mode' : 'Switch to Night mode'}
+                title={theme === 'dark' ? 'Switch to Day mode' : 'Switch to Night mode'}
+              >
+                {theme === 'dark' ? (
+                  <Sun className="w-[18px] h-[18px] sm:w-[20px] h-[20px] transition-transform hover:rotate-45 duration-500" />
+                ) : (
+                  <Moon className="w-[18px] h-[18px] sm:w-[20px] h-[20px] transition-transform hover:-rotate-12 duration-500" />
+                )}
+              </button>
+
               {/* Profile Dropdown Icon */}
               <ProfileDropdown />
 

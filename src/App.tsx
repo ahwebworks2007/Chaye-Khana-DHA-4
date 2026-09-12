@@ -11,6 +11,7 @@ import { ItemModal } from './components/ItemModal';
 import { MenuSection } from './components/MenuSection';
 import { Navbar } from './components/Navbar';
 import { NotFoundPage } from './components/NotFoundPage';
+import { FAQSection } from './components/FAQSection';
 import { CafeProvider, useCafe } from './context/CafeContext';
 import { getNormalizedPath, navigateTo } from './utils/router';
 import { SEOHead } from './components/SEOHead';
@@ -134,11 +135,22 @@ const AppRouter: React.FC = () => {
 
       {/* Main View Router */}
       <main className="flex-1">
-        {currentView === 'home' && <HeroSection />}
+        {currentView === 'home' && (
+          <>
+            <HeroSection />
+            <BranchesSection />
+            <FAQSection />
+          </>
+        )}
         {currentView === 'menu' && <MenuSection />}
         {currentView === 'about' && <AboutSection />}
         {currentView === 'contact' && <ContactSection />}
-        {currentView === 'branches' && <BranchesSection />}
+        {currentView === 'branches' && (
+          <>
+            <BranchesSection />
+            <FAQSection />
+          </>
+        )}
       </main>
 
       {/* Persistent Footer */}

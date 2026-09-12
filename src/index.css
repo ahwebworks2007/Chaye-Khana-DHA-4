@@ -16,17 +16,91 @@
   }
 
   html.light-mode {
-    --bg-main: #FDFCFB;
-    --bg-surface: #FFFFFF;
-    --bg-card: #FFFFFF;
-    --bg-subtle: #F4F3F0;
-    --text-primary: #171717;
-    --text-secondary: #525252;
-    --text-muted: #737373;
-    --border-color: #E5E4E0;
-    --border-hover: #D4D3CD;
-    --accent-color: #171717;
-    --accent-hover: #262626;
+    --bg-main: #F3EDE3;
+    --bg-surface: #FAF6EE;
+    --bg-card: #FAF6EE;
+    --bg-subtle: #EBE4D8;
+    --text-primary: #1C1917;
+    --text-secondary: #57534E;
+    --text-muted: #878076;
+    --border-color: #DFD5C4;
+    --border-hover: #C5B8A1;
+    --accent-color: #1C1917;
+    --accent-hover: #292524;
+  }
+
+  /* Smooth global transition for theme toggling background/color/border */
+  html, body, div, section, header, footer, p, h1, h2, h3, h4, h5, h6, span, a, button, input, select, textarea, li, nav, article, img {
+    transition: background-color 500ms ease-in-out, color 500ms ease-in-out, border-color 500ms ease-in-out, opacity 500ms ease-in-out, fill 500ms ease-in-out, stroke 500ms ease-in-out;
+  }
+
+  /* Map hardcoded background colors to theme variables under light-mode */
+  html.light-mode .bg-\[\#030304\],
+  html.light-mode .bg-black,
+  html.light-mode .bg-\[\#050506\],
+  html.light-mode .bg-\[\#050507\],
+  html.light-mode .bg-\[\#070709\],
+  html.light-mode .bg-\[\#020203\],
+  html.light-mode .bg-\[\#040405\],
+  html.light-mode .bg-neutral-950,
+  html.light-mode .bg-stone-950 {
+    background-color: var(--bg-main) !important;
+  }
+
+  html.light-mode .bg-\[\#09090b\],
+  html.light-mode .bg-\[\#0a0a0d\],
+  html.light-mode .bg-\[\#0a0a0c\],
+  html.light-mode .bg-neutral-900,
+  html.light-mode .bg-stone-900 {
+    background-color: var(--bg-surface) !important;
+  }
+
+  /* Map hardcoded text colors to theme variables under light-mode */
+  html.light-mode .text-white,
+  html.light-mode .text-stone-100,
+  html.light-mode .text-neutral-100,
+  html.light-mode .text-stone-200,
+  html.light-mode .text-neutral-200,
+  html.light-mode .text-stone-300,
+  html.light-mode .text-neutral-300 {
+    color: var(--text-primary) !important;
+  }
+
+  html.light-mode .text-neutral-400,
+  html.light-mode .text-stone-400,
+  html.light-mode .text-\[\#AFAFAF\] {
+    color: var(--text-secondary) !important;
+  }
+
+  /* Map hardcoded borders to theme variables under light-mode */
+  html.light-mode .border-white\/\[0\.08\],
+  html.light-mode .border-white\/10,
+  html.light-mode .border-white\/\[0\.06\],
+  html.light-mode .border-white\/\[0\.05\],
+  html.light-mode .border-stone-800,
+  html.light-mode .border-stone-700 {
+    border-color: var(--border-color) !important;
+  }
+
+  /* Adjust icons and buttons specifically for Day Mode */
+  html.light-mode svg {
+    stroke: currentColor;
+  }
+
+  /* Soften gradients and overlays in Day Mode */
+  html.light-mode .bg-\[radial-gradient\(ellipse_60\%_40\%_at_50\%_0\%_2Crgba\(255\%_2C255\%_2C255\%_2C0\.015\)\%_2Ctransparent\)\] {
+    background-image: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(0, 0, 0, 0.03), transparent) !important;
+  }
+  html.light-mode .bg-\[radial-gradient\(ellipse_80\%_60\%_at_50\%_0\%_2Crgba\(255\%_2C255\%_2C255\%_2C0\.02\)\%_2Ctransparent\)\] {
+    background-image: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0, 0, 0, 0.04), transparent) !important;
+  }
+
+  /* Preserve original visual aesthetics on hover buttons/links */
+  html.light-mode .hover\:text-white:hover {
+    color: var(--text-primary) !important;
+  }
+  html.light-mode .hover\:bg-white\/\[0\.05\]:hover {
+    background-color: rgba(0, 0, 0, 0.05) !important;
   }
 
   html {
