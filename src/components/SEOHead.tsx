@@ -103,7 +103,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({ currentPath }) => {
 
   useEffect(() => {
     // If on private admin routes, ensure strict noindex, nofollow and private title
-    if (currentPath && (currentPath.startsWith('/admin') || currentPath === '/admin/login')) {
+    if (currentPath && currentPath.startsWith('/admin')) {
       document.title = 'Staff Portal | Chaayé Khana DHA-4';
       let robotsMeta = document.querySelector('meta[name="robots"]');
       if (!robotsMeta) {

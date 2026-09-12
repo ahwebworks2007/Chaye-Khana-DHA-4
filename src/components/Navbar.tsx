@@ -4,9 +4,12 @@ import {
   X,
   Sun,
   Moon,
+  ChevronDown,
+  MapPin,
 } from 'lucide-react';
 import { useCafe } from '../context/CafeContext';
 import { ProfileDropdown } from './ProfileDropdown';
+import { CK_BRANCHES } from '../data/branchesData';
 
 export const Navbar: React.FC = () => {
   const {
@@ -15,10 +18,14 @@ export const Navbar: React.FC = () => {
     cafeSettings,
     theme,
     toggleTheme,
+    publicBranchId,
+    setPublicBranchId,
+    activeBranch,
   } = useCafe();
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [branchDropdownOpen, setBranchDropdownOpen] = useState(false);
 
   // Monitor scroll depth for smooth sticky header transformation
   useEffect(() => {
@@ -31,6 +38,20 @@ export const Navbar: React.FC = () => {
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Handle outside click to close branch dropdown
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      const container = document.getElementById('public-branch-selector-container');
+      if (container && !container.contains(e.target as Node)) {
+        setBranchDropdownOpen(false);
+      }
+    };
+    if (branchDropdownOpen) {
+      window.addEventListener('click', handleOutsideClick);
+    }
+    return () => window.removeEventListener('click', handleOutsideClick);
+  }, [branchDropdownOpen]);
 
   // Prevent background scrolling when mobile overlay is active
   useEffect(() => {
@@ -153,6 +174,48 @@ export const Navbar: React.FC = () => {
 
             {/* RIGHT: Profile Icon & Mobile Hamburger Toggle */}
             <div className="flex-1 flex items-center justify-end gap-3 sm:gap-4">
+              {/* Branch Selector */}
+              <div className="relative inline-block text-left" id="public-branch-selector-container">
+                <button
+                  id="public-branch-selector"
+                  onClick={() => setBranchDropdownOpen(!branchDropdownOpen)}
+                  aria-expanded={branchDropdownOpen}
+                  aria-haspopup="true"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-white/10 hover:border-white/30 bg-white/[0.03] text-neutral-300 hover:text-white text-[11px] sm:text-xs font-semibold tracking-wider uppercase transition-all duration-300 cursor-pointer focus:outline-hidden focus:ring-1 focus:ring-white/40"
+                >
+                  <MapPin className="w-3.5 h-3.5 text-[#C49B66]" />
+                  <span className="max-w-[120px] sm:max-w-[160px] truncate">{activeBranch.name.replace('Chaayé Khana – ', '').replace('Chaayé Khana — ', '')}</span>
+                  <ChevronDown className={`w-3 h-3 text-neutral-400 transition-transform duration-300 ${branchDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {branchDropdownOpen && (
+                  <div className="absolute right-0 mt-2.5 w-60 rounded-xl border border-white/[0.08] bg-[#0c0c0d]/98 backdrop-blur-md shadow-[0_15px_40px_rgba(0,0,0,0.95)] py-2 z-50 animate-fadeIn max-h-[300px] overflow-hidden flex flex-col">
+                    <div className="px-4 py-1.5 border-b border-white/[0.05] mb-1.5">
+                      <span className="text-[10px] tracking-widest text-neutral-500 uppercase block font-semibold">Select Branch</span>
+                    </div>
+                    <div className="overflow-y-auto max-h-[220px] custom-scrollbar divide-y divide-white/[0.03]">
+                      {CK_BRANCHES.map((b) => (
+                        <button
+                          key={b.id}
+                          onClick={() => {
+                            setPublicBranchId(b.id);
+                            setBranchDropdownOpen(false);
+                          }}
+                          className={`w-full text-left px-4 py-2.5 text-xs font-medium tracking-wide transition-colors flex items-center justify-between hover:bg-white/[0.04] ${
+                            b.id === publicBranchId ? 'text-[#C49B66] font-semibold bg-white/[0.02]' : 'text-neutral-400 hover:text-neutral-200'
+                          }`}
+                        >
+                          <span>{b.name.replace('Chaayé Khana – ', '').replace('Chaayé Khana — ', '')}</span>
+                          {b.id === publicBranchId && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#C49B66]" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Day/Night Theme Toggle */}
               <button
                 id="theme-toggle-btn"

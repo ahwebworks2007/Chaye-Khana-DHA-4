@@ -7,13 +7,12 @@ export const getNormalizedPath = (): string => {
   
   // Check pathname first
   const pathname = window.location.pathname.toLowerCase().replace(/\/+$/, '') || '/';
-  if (pathname === '/admin/login' || pathname === '/admin') {
+  if (pathname === '/admin') {
     return pathname;
   }
 
-  // Also support hash paths for nested preview iframes e.g. /#/admin/login
+  // Also support hash paths for nested preview iframes e.g. /#/admin
   const hash = window.location.hash.toLowerCase().replace(/^#/, '').replace(/\/+$/, '');
-  if (hash === '/admin/login' || hash === 'admin/login') return '/admin/login';
   if (hash === '/admin' || hash === 'admin') return '/admin';
 
   return pathname;

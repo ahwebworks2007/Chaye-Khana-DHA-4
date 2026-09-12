@@ -10,7 +10,7 @@ import { motion } from 'motion/react';
 import { useCafe } from '../context/CafeContext';
 
 export const AboutSection: React.FC = () => {
-  const { setCurrentView } = useCafe();
+  const { setCurrentView, activeBranch } = useCafe();
 
   return (
     <div className="bg-[#030304] text-white min-h-[90vh] selection:bg-white selection:text-black pt-12 md:pt-16 pb-24 sm:pb-32 border-b border-neutral-900">
@@ -57,7 +57,7 @@ export const AboutSection: React.FC = () => {
               We started with an enduring belief: an exceptional dining space should never compromise between authentic ingredient quality and comfortable variety. Whether you come for a steaming kettle of traditional Karak chai, slow-cooked Nihari, freshly toasted breakfast platters, or an espresso, every offering is prepared to order.
             </p>
             <p className="text-[#AFAFAF] text-sm sm:text-[15px] leading-relaxed font-light">
-              In DHA Phase 4, our light-filled dining salon, quiet library corner, and open-air rooftop terrace provide a welcoming retreat from city hustle.
+              In {activeBranch.area}, our light-filled dining salon, quiet library corner, and open-air rooftop terrace provide a welcoming retreat from city hustle.
             </p>
 
             <div className="pt-3 grid grid-cols-2 gap-4">

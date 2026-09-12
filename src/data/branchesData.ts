@@ -13,7 +13,7 @@ export interface Branch {
 
 export const CK_BRANCHES: Branch[] = [
   {
-    id: 'ck-dha-4',
+    id: 'dha-phase-4',
     name: 'Chaayé Khana – DHA-4',
     city: 'Rawalpindi',
     area: 'DHA Phase 4',
@@ -25,8 +25,8 @@ export const CK_BRANCHES: Branch[] = [
     googleMapsUrl: 'https://maps.google.com/?q=Chaaye+Khana+DHA+Phase+4+Rawalpindi',
   },
   {
-    id: 'ck-f6',
-    name: 'Chaayé Khana – F-6',
+    id: 'islamabad',
+    name: 'Chaayé Khana – Islamabad',
     city: 'Islamabad',
     area: 'F-6 Markaz',
     address: 'Shop 11, Block B, United Bakery Plaza, Super Market, F-6 Markaz, Islamabad',
@@ -73,7 +73,7 @@ export const CK_BRANCHES: Branch[] = [
     googleMapsUrl: 'https://maps.google.com/?q=Chaaye+Khana+Bahria+Town+Phase+7+Rawalpindi',
   },
   {
-    id: 'ck-saddar-rwp',
+    id: 'saddar',
     name: 'Chaayé Khana – Saddar',
     city: 'Rawalpindi',
     area: 'Saddar',

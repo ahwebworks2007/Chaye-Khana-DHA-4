@@ -54,6 +54,7 @@ import {
 import { formatPrice } from '../../utils/helpers';
 import { navigateTo } from '../../utils/router';
 import { ProfileDropdown } from '../ProfileDropdown';
+import { CK_BRANCHES } from '../../data/branchesData';
 
 interface AdminDashboardProps {
   onNavigate?: (path: string) => void;
@@ -76,18 +77,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
     cafeSettings,
     updateCafeSettings,
     setCurrentView,
+    activeBranch,
   } = useCafe();
 
-  // Redirect to /admin/login if not authenticated
+  // Redirect to /admin if not authenticated
   React.useEffect(() => {
     if (!isAdminAuthenticated) {
       if (onNavigate) {
-        onNavigate('/admin/login');
+        onNavigate('/admin');
       } else {
-        navigateTo('/admin/login');
+        navigateTo('/admin');
       }
+    } else {
+      setCurrentView('admin');
     }
-  }, [isAdminAuthenticated, onNavigate]);
+  }, [isAdminAuthenticated, onNavigate, setCurrentView]);
 
   // Change Password Modal & Form State
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
@@ -187,9 +191,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
   const handleLogout = () => {
     logoutAdmin();
     if (onNavigate) {
-      onNavigate('/admin/login');
+      onNavigate('/admin');
     } else {
-      navigateTo('/admin/login');
+      navigateTo('/admin');
     }
   };
 
@@ -466,7 +470,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
     return matchCat || hasMatchingItem;
   });
 
-  // If Not Authenticated, return null (redirect effect handles navigation to /admin/login)
+  // If Not Authenticated, return null (redirect effect handles navigation to /admin)
   if (!isAdminAuthenticated) {
     return null;
   }
@@ -481,10 +485,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
               <Settings className="w-5 h-5" />
             </div>
             <div>
-              <h1 className="font-serif font-bold text-xl sm:text-2xl text-stone-100">
-                Menu & Storefront Manager
-              </h1>
-              <p className="text-xs text-stone-400">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="font-serif font-bold text-xl sm:text-2xl text-stone-100">
+                  Menu & Storefront Manager
+                </h1>
+
+                {/* Elegant Admin Branch Selector (Read-Only Indicator) */}
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg border border-stone-800 bg-stone-950 text-[#C49B66] text-[11px] font-semibold tracking-wider uppercase select-none">
+                  <MapPin className="w-3 h-3 text-[#C49B66]" />
+                  <span>Current Branch: {activeBranch.name.replace('Chaayé Khana – ', '').replace('Chaayé Khana — ', '')}</span>
+                </div>
+              </div>
+              <p className="text-xs text-stone-400 mt-0.5">
                 {cafeSettings.cafeName} • Catalog & Showcase Management
               </p>
             </div>

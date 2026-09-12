@@ -3,7 +3,7 @@ import { Instagram, MapPin, Phone, Clock, ArrowUp, Facebook, Youtube, MessageSqu
 import { useCafe } from '../context/CafeContext';
 
 export const Footer: React.FC = () => {
-  const { cafeSettings, setCurrentView, currentView } = useCafe();
+  const { cafeSettings, setCurrentView, currentView, activeBranch } = useCafe();
 
   const handleNavClick = (view: 'home' | 'menu' | 'about' | 'gallery' | 'visit') => {
     if (view === 'home') {
@@ -225,7 +225,7 @@ export const Footer: React.FC = () => {
             CHAAYÉ KHANA
           </div>
           <p className="mt-4 sm:mt-5 text-[11px] sm:text-[12px] uppercase tracking-[0.32em] text-[#8E8E93] font-light">
-            DHA-4 • {cafeSettings.city ? cafeSettings.city.toUpperCase() : 'RAWALPINDI'}
+            {activeBranch.area.toUpperCase()} • {activeBranch.city.toUpperCase()}
           </p>
         </div>
 

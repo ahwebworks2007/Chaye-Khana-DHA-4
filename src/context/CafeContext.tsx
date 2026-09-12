@@ -6,7 +6,8 @@ import {
   MenuCategory,
   MenuItem,
 } from '../types';
-import { hashPassword, verifyPassword } from '../utils/security';
+import { CK_BRANCHES, Branch } from '../data/branchesData';
+import { AdminUser } from '../data/adminUsers';
 
 export type AppView =
   | 'home'
@@ -29,48 +30,59 @@ interface CafeContextType {
   theme: ThemeMode;
   toggleTheme: () => void;
 
-  // Menu & Categories
+  // Single Source of Truth for Branches
+  publicBranchId: string;
+  setPublicBranchId: (id: string) => void;
+  adminBranchId: string;
+  setAdminBranchId: (id: string) => void;
+  activeBranchId: string;
+  activeBranch: Branch;
+
+  // Branch-specific Dynamic Data
   menuItems: MenuItem[];
   categories: MenuCategory[];
-
-  // Cafe Settings
   cafeSettings: CafeSettings;
-  updateCafeSettings: (settings: CafeSettings) => void;
 
-  // Admin Authentication & Security
+  // Backend Authentication & Session States
   isAdminAuthenticated: boolean;
-  loginAdmin: (password: string) => Promise<boolean>;
+  adminUser: AdminUser | null;
+  loginAdmin: (email: string, password: string) => Promise<boolean>;
   logoutAdmin: () => void;
   changeAdminPassword: (
     currentPass: string,
     newPass: string
   ) => Promise<{ success: boolean; error?: string }>;
 
-  // Menu & Category Management
+  // Admin Operations (Secured by Backend)
   addMenuItem: (item: Omit<MenuItem, 'id'>) => void;
   updateMenuItem: (item: MenuItem) => void;
-  deleteMenuItem: (itemId: string) => void;
-  toggleItemAvailability: (itemId: string) => void;
-  toggleItemPopular: (itemId: string) => void;
+  deleteMenuItem: (id: string) => void;
+  toggleItemAvailability: (id: string) => void;
+  toggleItemPopular: (id: string) => void;
+
   addCategory: (category: Omit<MenuCategory, 'id'>) => void;
   updateCategory: (category: MenuCategory) => void;
-  deleteCategory: (catId: string) => void;
+  deleteCategory: (id: string) => void;
+
+  updateCafeSettings: (settings: CafeSettings) => void;
   resetToDefaultData: () => void;
 }
 
 const CafeContext = createContext<CafeContextType | undefined>(undefined);
 
-export const CafeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Navigation State
+export const CafeProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  // Navigation & UI state
   const [currentView, setCurrentView] = useState<AppView>('home');
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
   const [selectedItemForModal, setSelectedItemForModal] = useState<MenuItem | null>(null);
 
-  // Theme State
+  // Theme state
   const [theme, setTheme] = useState<ThemeMode>(() => {
     try {
-      const saved = localStorage.getItem('chaaye_khana_theme');
-      return (saved === 'light' || saved === 'dark') ? saved : 'dark';
+      const saved = localStorage.getItem('artisan_cafe_theme');
+      return saved === 'dark' || saved === 'light' ? saved : 'dark';
     } catch {
       return 'dark';
     }
@@ -78,13 +90,11 @@ export const CafeProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     try {
-      localStorage.setItem('chaaye_khana_theme', theme);
-      if (theme === 'light') {
-        document.documentElement.classList.add('light-mode');
-        document.documentElement.classList.remove('dark-mode');
+      localStorage.setItem('artisan_cafe_theme', theme);
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
       } else {
-        document.documentElement.classList.add('dark-mode');
-        document.documentElement.classList.remove('light-mode');
+        document.documentElement.classList.remove('dark');
       }
     } catch {}
   }, [theme]);
@@ -93,131 +103,256 @@ export const CafeProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   };
 
-  // Admin Auth State
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
-    return localStorage.getItem('artisan_admin_auth') === 'true';
-  });
+  // Authenticated Admin User (Verified strictly by backend)
+  const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
 
-  // Persistent Menu Items - Clean up old storage keys to enforce new official menu
-  const [menuItems, setMenuItems] = useState<MenuItem[]>(() => {
+  // Public Branch Selection (Storefront deployment configuration fallback)
+  const [selectedBranchId, setSelectedBranchIdState] = useState<string>(() => {
     try {
-      localStorage.removeItem('artisan_menu_items');
-      localStorage.removeItem('chaaye_khana_menu_items');
-      const saved = localStorage.getItem('ck_official_menu_v4');
-      return saved ? JSON.parse(saved) : defaultMenuItems;
-    } catch {
-      return defaultMenuItems;
-    }
-  });
-
-  // Persistent Categories - Clean up old storage keys
-  const [categories, setCategories] = useState<MenuCategory[]>(() => {
-    try {
-      localStorage.removeItem('artisan_categories');
-      localStorage.removeItem('chaaye_khana_categories');
-      const saved = localStorage.getItem('ck_official_categories_v4');
-      return saved ? JSON.parse(saved) : defaultCategories;
-    } catch {
-      return defaultCategories;
-    }
-  });
-
-  // Persistent Cafe Settings
-  const [cafeSettings, setCafeSettings] = useState<CafeSettings>(() => {
-    try {
-      const saved = localStorage.getItem('ck_official_settings_v4');
-      const parsed: CafeSettings = saved ? JSON.parse(saved) : defaultCafeSettings;
-      
-      const merged: CafeSettings = {
-        ...defaultCafeSettings,
-        ...parsed,
-        socialsConfig: parsed.socialsConfig && parsed.socialsConfig.length > 0 
-          ? parsed.socialsConfig 
-          : defaultCafeSettings.socialsConfig,
-      };
-
-      const savedHash = localStorage.getItem('ck_admin_pwd_hash');
-      if (savedHash && !merged.adminPasswordHash) {
-        merged.adminPasswordHash = savedHash;
+      const envBranch = import.meta.env.VITE_ACTIVE_BRANCH_ID;
+      if (envBranch && CK_BRANCHES.some((b) => b.id === envBranch)) {
+        return envBranch;
       }
-      return merged;
+      const savedId = localStorage.getItem('ck_selected_branch');
+      if (savedId && CK_BRANCHES.some((b) => b.id === savedId)) {
+        return savedId;
+      }
+      return 'dha-phase-4';
     } catch {
-      return defaultCafeSettings;
+      return 'dha-phase-4';
     }
   });
 
-  // Sync to localStorage
-  useEffect(() => {
-    try {
-      localStorage.setItem('ck_official_menu_v4', JSON.stringify(menuItems));
-    } catch {}
-  }, [menuItems]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('ck_official_categories_v4', JSON.stringify(categories));
-    } catch {}
-  }, [categories]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('ck_official_settings_v4', JSON.stringify(cafeSettings));
-    } catch {}
-  }, [cafeSettings]);
-
-  // Admin authentication
-  const loginAdmin = async (password: string): Promise<boolean> => {
-    const trimmed = password.trim();
-    const storedHash = cafeSettings.adminPasswordHash || localStorage.getItem('ck_admin_pwd_hash') || undefined;
-    const isValid = await verifyPassword(trimmed, storedHash);
-    if (isValid) {
-      setIsAdminAuthenticated(true);
-      localStorage.setItem('artisan_admin_auth', 'true');
-      return true;
+  const setBranchId = (id: string) => {
+    // If admin is authenticated, branch selection is strictly locked to their assigned branchId
+    if (isAdminAuthenticated && adminUser) {
+      console.warn('Unauthorized: Branch administrators are strictly locked to their assigned branch.');
+      return;
     }
-    return false;
+    if (CK_BRANCHES.some((b) => b.id === id)) {
+      setSelectedBranchIdState(id);
+      try {
+        localStorage.setItem('ck_selected_branch', id);
+      } catch {}
+    }
+  };
+
+  const publicBranchId = selectedBranchId;
+  const adminBranchId = selectedBranchId;
+  const setPublicBranchId = setBranchId;
+  const setAdminBranchId = setBranchId;
+
+  // Active Branch: If admin is authenticated, trusted assignment comes from server-verified adminUser.
+  const activeBranchId = isAdminAuthenticated && adminUser ? adminUser.branchId : selectedBranchId;
+  const activeBranch = CK_BRANCHES.find((b) => b.id === activeBranchId) || CK_BRANCHES[0];
+
+  // Branch-specific Menu, Categories, and Settings State
+  const [menuItems, setMenuItems] = useState<MenuItem[]>(() => defaultMenuItems);
+  const [categories, setCategories] = useState<MenuCategory[]>(() => defaultCategories);
+  const [cafeSettings, setCafeSettings] = useState<CafeSettings>(() => ({
+    ...defaultCafeSettings,
+    cafeName: activeBranch.name,
+    address: activeBranch.address,
+    phone: activeBranch.phone,
+    openingHoursDisplay: activeBranch.openingHours,
+    city: activeBranch.city,
+    googleMapsUrl: activeBranch.googleMapsUrl,
+  }));
+
+  // Fetch admin branch data strictly from backend using verified token or cookie
+  const fetchAdminBranchData = async (token?: string) => {
+    try {
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch('/api/admin/branch-data', {
+        headers,
+        credentials: 'include',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.menuItems)) setMenuItems(data.menuItems);
+        if (Array.isArray(data.categories)) setCategories(data.categories);
+        if (data.cafeSettings) setCafeSettings(data.cafeSettings);
+      }
+    } catch (err) {
+      console.error('Error fetching admin branch data:', err);
+    }
+  };
+
+  // Verify stored session token or HTTP-only cookie on application boot
+  useEffect(() => {
+    const token = localStorage.getItem('ck_auth_token') || undefined;
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    fetch('/api/auth/me', {
+      headers,
+      credentials: 'include',
+    })
+      .then((res) => {
+        if (res.ok) return res.json();
+        throw new Error('Not authenticated');
+      })
+      .then((data) => {
+        if (data.authenticated && data.user) {
+          setAdminUser(data.user);
+          setIsAdminAuthenticated(true);
+          fetchAdminBranchData(token);
+        }
+      })
+      .catch(() => {
+        localStorage.removeItem('ck_auth_token');
+        setAdminUser(null);
+        setIsAdminAuthenticated(false);
+      });
+  }, []);
+
+  // Fetch public storefront data when not in admin mode
+  useEffect(() => {
+    if (isAdminAuthenticated && adminUser) return;
+
+    fetch(`/api/public/branch/${activeBranchId}`)
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data) {
+          if (Array.isArray(data.menuItems) && data.menuItems.length > 0) {
+            setMenuItems(data.menuItems);
+          }
+          if (Array.isArray(data.categories) && data.categories.length > 0) {
+            setCategories(data.categories);
+          }
+          if (data.cafeSettings) {
+            setCafeSettings(data.cafeSettings);
+          }
+        }
+      })
+      .catch(() => {
+        // Fallback to defaults
+        const baseDefaultSettings: CafeSettings = {
+          ...defaultCafeSettings,
+          cafeName: activeBranch.name,
+          address: activeBranch.address,
+          phone: activeBranch.phone,
+          openingHoursDisplay: activeBranch.openingHours,
+          city: activeBranch.city,
+          googleMapsUrl: activeBranch.googleMapsUrl,
+        };
+        setCafeSettings(baseDefaultSettings);
+        setMenuItems(defaultMenuItems);
+        setCategories(defaultCategories);
+      });
+  }, [activeBranchId, isAdminAuthenticated, adminUser]);
+
+  // Admin authentication (Strict backend-enforced)
+  const loginAdmin = async (email: string, password: string): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!res.ok) {
+        return false;
+      }
+
+      const data = await res.json();
+      if (data.token && data.user) {
+        localStorage.setItem('ck_auth_token', data.token);
+        setAdminUser(data.user);
+        setIsAdminAuthenticated(true);
+        await fetchAdminBranchData(data.token);
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error('Backend login error:', err);
+      return false;
+    }
   };
 
   const logoutAdmin = () => {
+    const token = localStorage.getItem('ck_auth_token');
+    fetch('/api/auth/logout', {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      credentials: 'include',
+    }).catch(() => {});
+    localStorage.removeItem('ck_auth_token');
+    setAdminUser(null);
     setIsAdminAuthenticated(false);
-    localStorage.removeItem('artisan_admin_auth');
   };
 
   const changeAdminPassword = async (
     currentPass: string,
     newPass: string
   ): Promise<{ success: boolean; error?: string }> => {
-    const trimmedCurrent = currentPass.trim();
-    const trimmedNew = newPass.trim();
+    const token = localStorage.getItem('ck_auth_token');
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    if (!trimmedCurrent) {
-      return { success: false, error: 'Current password is required.' };
-    }
-    if (!trimmedNew) {
-      return { success: false, error: 'New password cannot be empty.' };
-    }
-
-    const storedHash = cafeSettings.adminPasswordHash || localStorage.getItem('ck_admin_pwd_hash') || undefined;
-    const isCurrentValid = await verifyPassword(trimmedCurrent, storedHash);
-
-    if (!isCurrentValid) {
-      return { success: false, error: 'Current password is incorrect.' };
-    }
-
-    const newHash = await hashPassword(trimmedNew);
-    const updatedSettings: CafeSettings = {
-      ...cafeSettings,
-      adminPasswordHash: newHash,
-      adminPin: undefined,
-    };
-
-    setCafeSettings(updatedSettings);
     try {
-      localStorage.setItem('ck_admin_pwd_hash', newHash);
-      localStorage.setItem('ck_official_settings_v4', JSON.stringify(updatedSettings));
-    } catch {}
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers,
+        credentials: 'include',
+        body: JSON.stringify({
+          currentPassword: currentPass,
+          newPassword: newPass,
+        }),
+      });
 
-    return { success: true };
+      const data = await res.json();
+      if (!res.ok) {
+        return { success: false, error: data.error || 'Failed to update password.' };
+      }
+      return { success: true };
+    } catch {
+      return { success: false, error: 'Network error while updating password.' };
+    }
+  };
+
+  // Helper to sync mutations to backend
+  const syncMenuMutation = (items: MenuItem[]) => {
+    const token = localStorage.getItem('ck_auth_token');
+    if (!token || !isAdminAuthenticated) return;
+    fetch('/api/admin/menu', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ menuItems: items }),
+    }).catch((err) => console.error('Failed to sync menu mutation to backend:', err));
+  };
+
+  const syncCategoriesMutation = (cats: MenuCategory[]) => {
+    const token = localStorage.getItem('ck_auth_token');
+    if (!token || !isAdminAuthenticated) return;
+    fetch('/api/admin/categories', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ categories: cats }),
+    }).catch((err) => console.error('Failed to sync category mutation to backend:', err));
+  };
+
+  const syncSettingsMutation = (settings: CafeSettings) => {
+    const token = localStorage.getItem('ck_auth_token');
+    if (!token || !isAdminAuthenticated) return;
+    fetch('/api/admin/settings', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ settings }),
+    }).catch((err) => console.error('Failed to sync settings mutation to backend:', err));
   };
 
   // Menu Admin Operations
@@ -227,33 +362,39 @@ export const CafeProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ...itemData,
       id: newId,
     };
-    setMenuItems((prev) => [newItem, ...prev]);
+    const updated = [newItem, ...menuItems];
+    setMenuItems(updated);
+    syncMenuMutation(updated);
   };
 
   const updateMenuItem = (updatedItem: MenuItem) => {
-    setMenuItems((prev) =>
-      prev.map((item) => (item.id === updatedItem.id ? updatedItem : item))
+    const updated = menuItems.map((item) =>
+      item.id === updatedItem.id ? updatedItem : item
     );
+    setMenuItems(updated);
+    syncMenuMutation(updated);
   };
 
   const deleteMenuItem = (itemId: string) => {
-    setMenuItems((prev) => prev.filter((item) => item.id !== itemId));
+    const updated = menuItems.filter((item) => item.id !== itemId);
+    setMenuItems(updated);
+    syncMenuMutation(updated);
   };
 
   const toggleItemAvailability = (itemId: string) => {
-    setMenuItems((prev) =>
-      prev.map((item) =>
-        item.id === itemId ? { ...item, isAvailable: !item.isAvailable } : item
-      )
+    const updated = menuItems.map((item) =>
+      item.id === itemId ? { ...item, isAvailable: !item.isAvailable } : item
     );
+    setMenuItems(updated);
+    syncMenuMutation(updated);
   };
 
   const toggleItemPopular = (itemId: string) => {
-    setMenuItems((prev) =>
-      prev.map((item) =>
-        item.id === itemId ? { ...item, isPopular: !item.isPopular } : item
-      )
+    const updated = menuItems.map((item) =>
+      item.id === itemId ? { ...item, isPopular: !item.isPopular } : item
     );
+    setMenuItems(updated);
+    syncMenuMutation(updated);
   };
 
   // Category Admin Operations
@@ -263,34 +404,46 @@ export const CafeProvider: React.FC<{ children: React.ReactNode }> = ({ children
       ...categoryData,
       id: `${slug}-${Date.now().toString().slice(-4)}`,
     };
-    setCategories((prev) => [...prev, newCategory]);
+    const updated = [...categories, newCategory];
+    setCategories(updated);
+    syncCategoriesMutation(updated);
   };
 
   const updateCategory = (updatedCat: MenuCategory) => {
-    setCategories((prev) =>
-      prev.map((cat) => (cat.id === updatedCat.id ? updatedCat : cat))
+    const updated = categories.map((cat) =>
+      cat.id === updatedCat.id ? updatedCat : cat
     );
+    setCategories(updated);
+    syncCategoriesMutation(updated);
   };
 
   const deleteCategory = (catId: string) => {
-    setCategories((prev) => prev.filter((cat) => cat.id !== catId));
+    const updated = categories.filter((cat) => cat.id !== catId);
+    setCategories(updated);
+    syncCategoriesMutation(updated);
   };
 
   const updateCafeSettings = (settings: CafeSettings) => {
     setCafeSettings(settings);
+    syncSettingsMutation(settings);
   };
 
   const resetToDefaultData = () => {
     setMenuItems(defaultMenuItems);
     setCategories(defaultCategories);
-    setCafeSettings(defaultCafeSettings);
-    localStorage.removeItem('artisan_menu_items');
-    localStorage.removeItem('artisan_categories');
-    localStorage.removeItem('artisan_cafe_settings');
-    localStorage.removeItem('artisan_orders');
-    localStorage.removeItem('artisan_cart');
-    localStorage.removeItem('artisan_delivery_settings');
-    localStorage.removeItem('artisan_pickup_settings');
+    const baseDefaultSettings: CafeSettings = {
+      ...defaultCafeSettings,
+      cafeName: activeBranch.name,
+      address: activeBranch.address,
+      phone: activeBranch.phone,
+      openingHoursDisplay: activeBranch.openingHours,
+      city: activeBranch.city,
+      googleMapsUrl: activeBranch.googleMapsUrl,
+    };
+    setCafeSettings(baseDefaultSettings);
+    syncMenuMutation(defaultMenuItems);
+    syncCategoriesMutation(defaultCategories);
+    syncSettingsMutation(baseDefaultSettings);
   };
 
   return (
@@ -304,10 +457,17 @@ export const CafeProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSelectedItemForModal,
         theme,
         toggleTheme,
+        publicBranchId,
+        setPublicBranchId,
+        adminBranchId,
+        setAdminBranchId,
+        activeBranchId,
+        activeBranch,
         menuItems,
         categories,
         cafeSettings,
         isAdminAuthenticated,
+        adminUser,
         loginAdmin,
         logoutAdmin,
         changeAdminPassword,

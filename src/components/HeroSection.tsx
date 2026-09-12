@@ -14,7 +14,7 @@ import rooftopImage from '../assets/images/chaaye_khana_rooftop_1788985644536.jp
 import heroBackground from '../assets/images/hero_background_1789169162945.jpg';
 
 export const HeroSection: React.FC = () => {
-  const { cafeSettings, setCurrentView } = useCafe();
+  const { cafeSettings, setCurrentView, activeBranch } = useCafe();
   const [activeMenuCategory, setActiveMenuCategory] = useState<string>('breakfast');
 
   // Extremely subtle slow cinematic parallax (clamped strictly to 10-12px, desktop only, respects reduced-motion)
@@ -435,7 +435,7 @@ export const HeroSection: React.FC = () => {
               </p>
 
               <p className="text-[#AFAFAF] text-[14px] sm:text-[15px] leading-[1.75] font-light">
-                Step inside our DHA Phase 4 location and you are greeted by the comforting aroma of freshly simmered karak tea, freshly ground espresso, and warm morning sourdough. Surrounded by walls lined with world literature and soft, ambient jazz, guests discover a place to pause, converse, and savor honest food crafted from the finest ingredients.
+                Step inside our {activeBranch.area} location and you are greeted by the comforting aroma of freshly simmered karak tea, freshly ground espresso, and warm morning sourdough. Surrounded by walls lined with world literature and soft, ambient jazz, guests discover a place to pause, converse, and savor honest food crafted from the finest ingredients.
               </p>
 
               <div className="pt-3">

@@ -72,24 +72,6 @@ const AppRouter: React.FC = () => {
     setCurrentPath(getNormalizedPath());
   };
 
-  // Redirect unauthenticated admin visits to login page
-  useEffect(() => {
-    if (currentPath.startsWith('/admin') && currentPath !== '/admin/login' && !isAdminAuthenticated) {
-      navigateTo('/admin/login');
-      setCurrentPath('/admin/login');
-    }
-  }, [currentPath, isAdminAuthenticated]);
-
-  // Route 1: Dedicated Admin Login (/admin/login)
-  if (currentPath === '/admin/login') {
-    return (
-      <>
-        <SEOHead currentPath={currentPath} />
-        <AdminLoginPage onNavigate={handleNavigate} />
-      </>
-    );
-  }
-
   // Route 2: Protected Admin Dashboard (/admin)
   if (currentPath.startsWith('/admin')) {
     if (!isAdminAuthenticated) {

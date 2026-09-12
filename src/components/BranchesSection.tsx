@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Search, Navigation, MapPin, Phone, Clock, ExternalLink, Compass } from 'lucide-react';
 import { CK_BRANCHES, Branch } from '../data/branchesData';
+import { useCafe } from '../context/CafeContext';
 
 interface BranchWithDistance extends Branch {
   distance?: number;
 }
 
 export const BranchesSection: React.FC = () => {
+  const { publicBranchId, setPublicBranchId } = useCafe();
   const [searchQuery, setSearchQuery] = useState('');
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -312,8 +314,8 @@ export const BranchesSection: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Get Directions Action Button */}
-                  <div className="pt-4 border-t border-white/[0.04] mt-4">
+                  {/* Get Directions & Select Branch Action Buttons */}
+                  <div className="pt-4 border-t border-white/[0.04] mt-4 flex items-center justify-between">
                     <a
                       href={branch.googleMapsUrl}
                       target="_blank"
@@ -323,6 +325,21 @@ export const BranchesSection: React.FC = () => {
                       <span>GET DIRECTIONS</span>
                       <ExternalLink className="w-3 h-3 text-neutral-500 group-hover:text-white transition-colors" />
                     </a>
+
+                    {branch.id === publicBranchId ? (
+                      <span className="inline-flex items-center gap-1.5 text-xs tracking-widest text-[#C49B66] font-semibold uppercase">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#C49B66]" />
+                        <span>ACTIVE</span>
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setPublicBranchId(branch.id)}
+                        className="inline-flex items-center gap-1 text-xs tracking-widest text-neutral-400 hover:text-white uppercase font-light transition-all duration-300 cursor-pointer hover:underline"
+                      >
+                        <span>SELECT BRANCH</span>
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}

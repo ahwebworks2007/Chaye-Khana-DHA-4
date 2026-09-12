@@ -9,9 +9,11 @@ import {
   LogOut,
   ArrowLeft,
   ChevronDown,
+  Shield,
 } from 'lucide-react';
 import { useCafe } from '../context/CafeContext';
 import { CK_BRANCHES, Branch } from '../data/branchesData';
+import { navigateTo } from '../utils/router';
 
 interface ProfileDropdownProps {
   isAdminContext?: boolean;
@@ -20,6 +22,9 @@ interface ProfileDropdownProps {
 export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ isAdminContext = false }) => {
   const {
     cafeSettings,
+    adminBranchId,
+    setAdminBranchId,
+    activeBranch,
   } = useCafe();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -30,13 +35,12 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ isAdminContext
     return localStorage.getItem('ck_customer_id') || '';
   });
 
-  // Admin branch selector state (persisted via localStorage)
-  const [selectedBranchId, setSelectedBranchId] = useState<string>(() => {
-    return localStorage.getItem('ck_admin_selected_branch') || 'ck-dha-4';
-  });
+  // centralize admin branch selector states
+  const selectedBranchId = adminBranchId;
+  const setSelectedBranchId = setAdminBranchId;
+  const selectedBranch = activeBranch;
+  
   const [isBranchDropdownOpen, setIsBranchDropdownOpen] = useState(false);
-
-  const selectedBranch = CK_BRANCHES.find((b) => b.id === selectedBranchId) || CK_BRANCHES[0];
 
   // Login inline form state
   const [showCustomerLoginForm, setShowCustomerLoginForm] = useState(false);
@@ -196,7 +200,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ isAdminContext
               <p className="text-xs font-medium text-neutral-200 mt-0.5 truncate">
                 {isCustomerLoggedIn 
                   ? customerIdentifier 
-                  : 'DHA Phase 4 • Rawalpindi'}
+                  : `${activeBranch.area} • ${activeBranch.city}`}
               </p>
             )}
           </div>
@@ -265,7 +269,7 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ isAdminContext
 
                 <div className="bg-neutral-950/60 p-2 border border-neutral-800/40 rounded-lg space-y-1">
                   <span className="text-[9px] font-semibold text-neutral-500 block uppercase tracking-wider">DELIVERY TO</span>
-                  <p className="text-[10px] text-neutral-300 font-light line-clamp-1">Sector F, DHA Phase 4, Rawalpindi</p>
+                  <p className="text-[10px] text-neutral-300 font-light line-clamp-1">{activeBranch.address}</p>
                 </div>
               </div>
             ) : (
@@ -281,6 +285,24 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ isAdminContext
                     <div className="flex items-center gap-2.5">
                       <User className="w-3.5 h-3.5 text-neutral-400 group-hover:text-white transition-colors" />
                       <span>Customer Login</span>
+                    </div>
+                    <ChevronRight className="w-3 h-3 text-neutral-400 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+                  </button>
+                )}
+
+                {/* 2. Admin Login -> admin access (only visible in public dropdown context when not logged in as customer) */}
+                {!isAdminContext && !isCustomerLoggedIn && (
+                  <button
+                    id="dropdown-admin-login"
+                    onClick={() => {
+                      setIsOpen(false);
+                      navigateTo('/admin');
+                    }}
+                    className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-neutral-300 hover:text-white hover:bg-neutral-800/60 transition-all duration-200 cursor-pointer group"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Shield className="w-3.5 h-3.5 text-neutral-400 group-hover:text-white transition-colors" />
+                      <span>Admin Login</span>
                     </div>
                     <ChevronRight className="w-3 h-3 text-neutral-400 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
                   </button>
@@ -327,18 +349,25 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ isAdminContext
                         <span className="line-clamp-2">{selectedBranch.address}</span>
                       </p>
                     </div>
-                  ) : null}
+                  ) : (
+                    <div className="space-y-1.5 mb-1 text-neutral-500 font-light text-[10.5px]">
+                      <p className="flex items-start gap-2">
+                        <MapPin className="w-3 h-3 text-neutral-600 shrink-0 mt-0.5" />
+                        <span className="line-clamp-2">{activeBranch.address}</span>
+                      </p>
+                    </div>
+                  )}
                   <div className="flex items-center gap-2">
                     <Clock className="w-3 h-3 text-neutral-500 shrink-0" />
-                    <span>{isAdminContext && selectedBranch ? selectedBranch.openingHours : 'Daily: 8:00 AM – 1:00 AM'}</span>
+                    <span>{isAdminContext && selectedBranch ? selectedBranch.openingHours : activeBranch.openingHours}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Phone className="w-3 h-3 text-neutral-500 shrink-0" />
                     <a
-                      href={`tel:${isAdminContext && selectedBranch ? selectedBranch.phone : cafeSettings.phone}`}
+                      href={`tel:${isAdminContext && selectedBranch ? selectedBranch.phone : activeBranch.phone}`}
                       className="text-neutral-300 hover:text-white transition-colors"
                     >
-                      {isAdminContext && selectedBranch ? selectedBranch.phone : cafeSettings.phone}
+                      {isAdminContext && selectedBranch ? selectedBranch.phone : activeBranch.phone}
                     </a>
                   </div>
                 </div>
