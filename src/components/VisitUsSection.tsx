@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { MapPin, Clock, Phone, ArrowUpRight } from 'lucide-react';
 import { useCafe } from '../context/CafeContext';
+import ladiesTuesdayImage from '../assets/images/ladies_tuesday_promo_1789219305663.jpg';
 
 export const VisitUsSection: React.FC = () => {
   const { cafeSettings, setCurrentView } = useCafe();
@@ -131,8 +132,8 @@ export const VisitUsSection: React.FC = () => {
               {/* Immersive Image Container */}
               <div className="relative aspect-[4/3] sm:aspect-[16/11] lg:aspect-[5/4] w-full overflow-hidden">
                 <img
-                  src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1600&q=85"
-                  alt="Chaayé Khana DHA-4 warm ambient interior with cozy library lounge and wooden seating"
+                  src={ladiesTuesdayImage}
+                  alt="Ladies Tuesday - Free tea for all ladies every Tuesday, all day at Chaayé Khana DHA Phase 4"
                   loading="lazy"
                   className="w-full h-full object-cover object-center transition-transform duration-1000 ease-out group-hover:scale-[1.02] motion-reduce:transform-none"
                   referrerPolicy="no-referrer"
@@ -146,10 +147,10 @@ export const VisitUsSection: React.FC = () => {
                 <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between pointer-events-none">
                   <div className="bg-black/60 backdrop-blur-md px-3.5 py-2 rounded-[2px] border border-white/10">
                     <span className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-white/90 font-medium block">
-                      TEA SALON &amp; LIBRARY
+                      LADIES TUESDAY PROMO
                     </span>
                     <span className="text-[12px] sm:text-[13px] text-white/70 font-light block">
-                      Chaayé Khana • DHA Phase 4
+                      Free Tea • All Day
                     </span>
                   </div>
                 </div>
