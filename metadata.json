@@ -1,0 +1,7 @@
+{
+  "name": "Chaayé Khana DHA-4 | Tea, Food & Dining in Rawalpindi",
+  "description": "Experience Chaayé Khana DHA-4 — a premium dining destination for signature chai, breakfast, delicious food and memorable moments in Rawalpindi.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+

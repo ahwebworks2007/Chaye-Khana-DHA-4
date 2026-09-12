@@ -1,0 +1,135 @@
+export interface Branch {
+  id: string;
+  name: string;
+  city: string;
+  area: string;
+  address: string;
+  lat: number;
+  lng: number;
+  phone: string;
+  openingHours: string;
+  googleMapsUrl: string;
+}
+
+export const CK_BRANCHES: Branch[] = [
+  {
+    id: 'ck-dha-4',
+    name: 'Chaayé Khana – DHA-4',
+    city: 'Rawalpindi',
+    area: 'DHA Phase 4',
+    address: 'Sector F, Commercial Area, DHA Phase 4, Rawalpindi / Islamabad',
+    lat: 33.5651,
+    lng: 73.0982,
+    phone: '+92 51 111 242 293',
+    openingHours: 'Monday – Sunday: 8:00 AM – 12:00 Midnight',
+    googleMapsUrl: 'https://maps.google.com/?q=Chaaye+Khana+DHA+Phase+4+Rawalpindi',
+  },
+  {
+    id: 'ck-f6',
+    name: 'Chaayé Khana – F-6',
+    city: 'Islamabad',
+    area: 'F-6 Markaz',
+    address: 'Shop 11, Block B, United Bakery Plaza, Super Market, F-6 Markaz, Islamabad',
+    lat: 33.7297,
+    lng: 73.0784,
+    phone: '+92 51 8352100',
+    openingHours: 'Monday – Sunday: 8:00 AM – 1:00 AM',
+    googleMapsUrl: 'https://maps.google.com/?q=Chaaye+Khana+F-6+Islamabad',
+  },
+  {
+    id: 'ck-f11',
+    name: 'Chaayé Khana – F-11',
+    city: 'Islamabad',
+    area: 'F-11 Markaz',
+    address: 'First Floor, Select One Plaza, F-11 Markaz, Islamabad',
+    lat: 33.6841,
+    lng: 72.9882,
+    phone: '+92 51 2110019',
+    openingHours: 'Monday – Sunday: 8:00 AM – 1:00 AM',
+    googleMapsUrl: 'https://maps.google.com/?q=Chaaye+Khana+F-11+Islamabad',
+  },
+  {
+    id: 'ck-i8',
+    name: 'Chaayé Khana – I-8',
+    city: 'Islamabad',
+    area: 'I-8 Markaz',
+    address: 'Plot 14, Executive Center, I-8 Markaz, Islamabad',
+    lat: 33.6684,
+    lng: 73.0789,
+    phone: '+92 51 4862411',
+    openingHours: 'Monday – Sunday: 8:00 AM – 12:00 Midnight',
+    googleMapsUrl: 'https://maps.google.com/?q=Chaaye+Khana+I-8+Islamabad',
+  },
+  {
+    id: 'ck-bahria-7',
+    name: 'Chaayé Khana – Bahria Phase 7',
+    city: 'Rawalpindi',
+    area: 'Bahria Town Phase 7',
+    address: 'Main Boulevard, Phase 7, Bahria Town, Rawalpindi',
+    lat: 33.5243,
+    lng: 73.1032,
+    phone: '+92 51 5730141',
+    openingHours: 'Monday – Sunday: 8:00 AM – 12:00 Midnight',
+    googleMapsUrl: 'https://maps.google.com/?q=Chaaye+Khana+Bahria+Town+Phase+7+Rawalpindi',
+  },
+  {
+    id: 'ck-saddar-rwp',
+    name: 'Chaayé Khana – Saddar',
+    city: 'Rawalpindi',
+    area: 'Saddar',
+    address: 'Main Sunder Singh Road, Saddar, Rawalpindi',
+    lat: 33.5932,
+    lng: 73.0543,
+    phone: '+92 51 5566332',
+    openingHours: 'Monday – Sunday: 8:00 AM – 11:30 PM',
+    googleMapsUrl: 'https://maps.google.com/?q=Chaaye+Khana+Saddar+Rawalpindi',
+  },
+  {
+    id: 'ck-gulberg',
+    name: 'Chaayé Khana – Gulberg',
+    city: 'Lahore',
+    area: 'Gulberg',
+    address: '11-B1, MM Alam Road, Gulberg III, Lahore',
+    lat: 31.5144,
+    lng: 74.3496,
+    phone: '+92 42 35778401',
+    openingHours: 'Monday – Sunday: 8:00 AM – 1:00 AM',
+    googleMapsUrl: 'https://maps.google.com/?q=Chaaye+Khana+MM+Alam+Lahore',
+  },
+  {
+    id: 'ck-dha-lhr',
+    name: 'Chaayé Khana – DHA',
+    city: 'Lahore',
+    area: 'DHA Phase 5',
+    address: 'CCA, Phase 5, DHA, Lahore',
+    lat: 31.4704,
+    lng: 74.4098,
+    phone: '+92 42 37182214',
+    openingHours: 'Monday – Sunday: 8:00 AM – 1:00 AM',
+    googleMapsUrl: 'https://maps.google.com/?q=Chaaye+Khana+DHA+Phase+5+Lahore',
+  },
+  {
+    id: 'ck-bukhari',
+    name: 'Chaayé Khana – DHA Clifton',
+    city: 'Karachi',
+    area: 'DHA Phase 6',
+    address: 'Bukhari Commercial Area, Phase VI, DHA, Karachi',
+    lat: 24.7981,
+    lng: 67.0673,
+    phone: '+92 21 35243261',
+    openingHours: 'Monday – Sunday: 8:00 AM – 2:00 AM',
+    googleMapsUrl: 'https://maps.google.com/?q=Chaaye+Khana+Bukhari+Commercial+Karachi',
+  },
+  {
+    id: 'ck-peshawar',
+    name: 'Chaayé Khana – Peshawar',
+    city: 'Peshawar',
+    area: 'Saddar Road',
+    address: 'Main Sunehri Masjid Road, Saddar, Peshawar',
+    lat: 34.0084,
+    lng: 71.5458,
+    phone: '+92 91 5253661',
+    openingHours: 'Monday – Sunday: 8:00 AM – 12:00 Midnight',
+    googleMapsUrl: 'https://maps.google.com/?q=Chaaye+Khana+Saddar+Peshawar',
+  }
+];

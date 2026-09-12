@@ -1,0 +1,7 @@
+# Robots.txt for Chaayé Khana DHA-4 Public Website
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/login
+
+Sitemap: https://chaayekhanadha4.com/sitemap.xml
