@@ -8,7 +8,6 @@ interface AdminLoginPageProps {
 
 export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onNavigate }) => {
   const { isAdminAuthenticated, loginAdmin } = useCafe();
-  const [emailInput, setEmailInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,10 +23,6 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onNavigate }) =>
     e.preventDefault();
     setErrorMsg('');
 
-    if (!emailInput.trim()) {
-      setErrorMsg('Please enter your administrator email.');
-      return;
-    }
     if (!passwordInput.trim()) {
       setErrorMsg('Please enter your administrator password.');
       return;
@@ -35,13 +30,12 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onNavigate }) =>
 
     setIsSubmitting(true);
     try {
-      const success = await loginAdmin(emailInput, passwordInput);
+      const success = await loginAdmin(passwordInput);
       if (success) {
-        setEmailInput('');
         setPasswordInput('');
         onNavigate('/admin');
       } else {
-        setErrorMsg('Incorrect email or password. Please verify and try again.');
+        setErrorMsg('Invalid password. Please try again.');
       }
     } catch {
       setErrorMsg('An unexpected authentication error occurred.');
@@ -88,33 +82,18 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onNavigate }) =>
           {/* Heading */}
           <div className="text-center space-y-2">
             <span className="text-[10px] uppercase tracking-[0.35em] text-neutral-400 font-semibold block">
-              CHAAYÉ KHANA PORTAL
+              CHAAYÉ KHANA DHA-4
             </span>
             <h1 className="font-serif text-2xl sm:text-3xl text-white font-normal tracking-tight">
               Staff &amp; Management
             </h1>
             <p className="text-xs text-neutral-400 leading-relaxed max-w-xs mx-auto font-light">
-              Restricted administrative portal. Enter authorized credentials (email and password) to access catalog management and operational settings.
+              Restricted administrative portal. Enter authorized password to access DHA-4 restaurant management.
             </p>
           </div>
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-4 pt-2">
-            <div>
-              <label className="block text-[11px] uppercase tracking-wider text-neutral-400 font-medium mb-2 text-left">
-                Admin Email Address
-              </label>
-              <input
-                type="email"
-                required
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                placeholder="e.g. dha4@example.com"
-                className="w-full px-4 py-3.5 rounded-xl bg-[#030304] border border-neutral-800 text-white text-sm placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500/80 transition-all"
-                autoFocus
-              />
-            </div>
-
             <div>
               <label className="block text-[11px] uppercase tracking-wider text-neutral-400 font-medium mb-2 text-left">
                 Admin Password
@@ -123,6 +102,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onNavigate }) =>
                 <input
                   type="password"
                   required
+                  autoFocus
                   value={passwordInput}
                   onChange={(e) => setPasswordInput(e.target.value)}
                   placeholder="Enter administrator password"

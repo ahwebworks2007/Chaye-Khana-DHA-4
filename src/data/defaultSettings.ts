@@ -63,7 +63,7 @@ export const defaultCafeSettings: CafeSettings = {
   email: 'info@chaayekhanadha4.com',
   address: 'Sector F, Commercial Area, DHA Phase 4, Islamabad',
   city: 'Rawalpindi',
-  googleMapsUrl: 'https://maps.google.com/?q=Chaay+Khana+DHA+Phase+4+Islamabad',
+  googleMapsUrl: 'https://www.google.com/maps/place/Chaay%C3%A9+Khana+Sector+F+Commercial+Area+DHA+Phase+4+Rawalpindi/@33.5651,73.0982,17z',
   openingHoursDisplay: 'Monday – Sunday: 8:00 AM – 12:00 Midnight',
   aboutStory: 'Founded as Pakistan’s pioneering tea cafe, Chaayé Khana – DHA-4 brings together a warm community retreat and an expansive menu of artisanal teas, continental breakfasts, wholesome sandwiches, and comforting café classics.',
   foodPhilosophy: 'Tea is our muse, and craft is our commitment. From hand-picked loose leaf teas and specialty brews to freshly baked goods and wholesome comfort food, every detail is curated for peaceful moments and genuine conversations.',

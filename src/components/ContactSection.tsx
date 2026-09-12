@@ -35,7 +35,7 @@ export const ContactSection: React.FC = () => {
   };
 
   const handleOpenMaps = () => {
-    const mapsUrl = cafeSettings.googleMapsUrl || 'https://www.google.com/maps/search/?api=1&query=Chaaye+Khana+DHA+Phase+4+Rawalpindi';
+    const mapsUrl = cafeSettings.googleMapsUrl || 'https://www.google.com/maps/place/Chaay%C3%A9+Khana+Sector+F+Commercial+Area+DHA+Phase+4+Rawalpindi/@33.5651,73.0982,17z';
     window.open(mapsUrl, '_blank', 'noopener,noreferrer');
   };
 

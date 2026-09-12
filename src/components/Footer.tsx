@@ -1,5 +1,5 @@
 import React from 'react';
-import { Instagram, MapPin, Phone, Clock, ArrowUp, Facebook, Youtube, MessageSquare } from 'lucide-react';
+import { Instagram, MapPin, Phone, Clock, ArrowUp, Facebook, Youtube, MessageSquare, ExternalLink } from 'lucide-react';
 import { useCafe } from '../context/CafeContext';
 
 export const Footer: React.FC = () => {
@@ -227,6 +227,17 @@ export const Footer: React.FC = () => {
           <p className="mt-4 sm:mt-5 text-[11px] sm:text-[12px] uppercase tracking-[0.32em] text-[#8E8E93] font-light">
             {activeBranch.area.toUpperCase()} • {activeBranch.city.toUpperCase()}
           </p>
+          <div className="mt-6 sm:mt-7 flex justify-center">
+            <a
+              href={activeBranch.googleMapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-[2px] border border-white/15 hover:border-white/40 bg-white/[0.03] hover:bg-white/[0.08] text-[#F5F4F0] transition-all duration-300 text-xs tracking-[0.2em] uppercase font-medium group cursor-pointer"
+            >
+              <span>GOOGLE MAPS</span>
+              <ExternalLink className="w-3.5 h-3.5 text-[#8E8E93] group-hover:text-white transition-colors" />
+            </a>
+          </div>
         </div>
 
         {/* ========================================================================= */}

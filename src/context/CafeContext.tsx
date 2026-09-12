@@ -46,7 +46,7 @@ interface CafeContextType {
   // Backend Authentication & Session States
   isAdminAuthenticated: boolean;
   adminUser: AdminUser | null;
-  loginAdmin: (email: string, password: string) => Promise<boolean>;
+  loginAdmin: (passwordOrEmail: string, optionalPassword?: string) => Promise<boolean>;
   logoutAdmin: () => void;
   changeAdminPassword: (
     currentPass: string,
@@ -91,10 +91,12 @@ export const CafeProvider: React.FC<{ children: React.ReactNode }> = ({
   useEffect(() => {
     try {
       localStorage.setItem('artisan_cafe_theme', theme);
-      if (theme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
+      if (theme === 'light') {
+        document.documentElement.classList.add('light-mode');
         document.documentElement.classList.remove('dark');
+      } else {
+        document.documentElement.classList.remove('light-mode');
+        document.documentElement.classList.add('dark');
       }
     } catch {}
   }, [theme]);
@@ -245,9 +247,15 @@ export const CafeProvider: React.FC<{ children: React.ReactNode }> = ({
       });
   }, [activeBranchId, isAdminAuthenticated, adminUser]);
 
-  // Admin authentication (Strict backend-enforced)
-  const loginAdmin = async (email: string, password: string): Promise<boolean> => {
+  // Admin authentication (Strict backend-enforced for DHA-4 single-branch setup)
+  const loginAdmin = async (
+    passwordOrEmail: string,
+    optionalPassword?: string
+  ): Promise<boolean> => {
     try {
+      const email = optionalPassword ? passwordOrEmail.trim() : 'dha4@example.com';
+      const password = (optionalPassword || passwordOrEmail).trim();
+
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

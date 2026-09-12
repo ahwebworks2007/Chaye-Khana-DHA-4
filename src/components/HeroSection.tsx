@@ -10,6 +10,8 @@ import { FullWidthPhotoSection } from './FullWidthPhotoSection';
 import { TheArtOfChaiSection } from './TheArtOfChaiSection';
 import { GallerySection } from './GallerySection';
 import { VisitUsSection } from './VisitUsSection';
+import { FromTheKitchenSection } from './FromTheKitchenSection';
+import { ThreeBreakfastScene } from './ThreeBreakfastScene';
 import rooftopImage from '../assets/images/chaaye_khana_rooftop_1788985644536.jpg';
 import heroBackground from '../assets/images/hero_background_1789169162945.jpg';
 
@@ -83,32 +85,38 @@ export const HeroSection: React.FC = () => {
 
         <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-16 lg:py-24 w-full relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
-            {/* Left Side: Brand + Headline + Short Description + Two CTAs */}
-            <div className="lg:col-span-6 space-y-8 text-left">
-              {/* 1. Brand Name */}
+            {/* Left Side: Eyebrow + Brand + Headline + Short Description + Single CTA */}
+            <div className="lg:col-span-6 space-y-6 sm:space-y-8 text-left">
+              {/* 1. Small Eyebrow */}
               <div className="transition-all duration-700 delay-100 ease-out">
-                <span className="text-[11px] uppercase tracking-[0.24em] text-neutral-400 font-medium block">
+                <span className="text-[11px] uppercase tracking-[0.28em] text-neutral-400 font-medium block">
+                  DHA-4 • RAWALPINDI
+                </span>
+              </div>
+
+              {/* 2. Main Brand / Title */}
+              <div className="transition-all duration-700 delay-150 ease-out">
+                <span className="text-[14px] sm:text-[15px] uppercase tracking-[0.32em] text-[#D8D4CD] font-medium block">
                   CHAAYÉ KHANA
                 </span>
               </div>
 
-              {/* 2. Main Headline */}
+              {/* 3. Primary Headline */}
               <div className="transition-all duration-700 delay-200 ease-out">
-                <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl xl:text-7xl text-white font-normal leading-[1.08] tracking-tight">
+                <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl xl:text-7xl text-white font-normal leading-[1.08] tracking-tight">
                   Where Tea, Food &amp; Conversation Meet
                 </h1>
               </div>
 
-              {/* 3. Short Refined Description */}
+              {/* 4. Short Refined Description */}
               <div className="transition-all duration-700 delay-300 ease-out">
                 <p className="text-neutral-400 text-base sm:text-lg max-w-lg leading-relaxed font-light">
                   An elevated dining experience crafted around exceptional food, signature chai and unforgettable moments.
                 </p>
               </div>
 
-              {/* 4. Two CTAs: Primary (EXPLORE MENU) & Secondary (DISCOVER OUR STORY) */}
-              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-5 sm:gap-7 transition-all duration-700 delay-500 ease-out">
-                {/* Primary CTA: EXPLORE MENU */}
+              {/* 5. Primary CTA: EXPLORE MENU (Single CTA) */}
+              <div className="pt-2 flex items-center transition-all duration-700 delay-500 ease-out">
                 <button
                   id="hero-explore-menu-btn"
                   onClick={() => {
@@ -119,67 +127,59 @@ export const HeroSection: React.FC = () => {
                 >
                   EXPLORE MENU
                 </button>
-
-                {/* Secondary CTA: DISCOVER OUR STORY */}
-                <button
-                  id="hero-discover-story-btn"
-                  onClick={() => {
-                    setCurrentView('about');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                  className="group flex items-center justify-center sm:justify-start gap-2.5 text-xs uppercase tracking-[0.2em] text-neutral-400 hover:text-white transition-colors duration-300 cursor-pointer py-3.5 select-none"
-                >
-                  <span className="border-b border-transparent group-hover:border-neutral-400 pb-0.5 transition-all duration-300">
-                    DISCOVER OUR STORY
-                  </span>
-                  <ArrowRight className="w-3.5 h-3.5 text-neutral-400 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
-                </button>
               </div>
             </div>
 
-            {/* Right Side: Spacer to display the cinematic restaurant background's breakfast composition */}
-            <div className="lg:col-span-6 relative flex items-center justify-center min-h-[300px] sm:min-h-[400px] lg:min-h-0 pointer-events-none" />
+            {/* Right Side: Existing Real 3D Breakfast / Chai Scene */}
+            <div className="lg:col-span-6 relative flex items-center justify-center min-h-[380px] sm:min-h-[460px] lg:min-h-[520px]">
+              <ThreeBreakfastScene className="w-full h-full" />
+            </div>
           </div>
         </div>
       </section>
 
       {/* ========================================================================= */}
-      {/* 2. CINEMATIC INTRODUCTION: Single-Column Luxury Editorial Section */}
+      {/* 2. BRAND STATEMENT: Premium Editorial Split Composition */}
       {/* ========================================================================= */}
       <section
-        id="philosophy-section"
-        className="relative bg-[#030304] text-white pt-[70px] pb-[80px] px-6 md:pt-[90px] md:pb-[100px] md:px-10 lg:pt-[120px] lg:pb-[140px] lg:px-[60px] overflow-hidden"
+        id="brand-statement-section"
+        className="relative bg-[#030304] text-white py-24 sm:py-32 lg:py-40 px-6 sm:px-10 lg:px-16 overflow-hidden"
       >
-        <div className="max-w-[1200px] mx-auto w-full">
-          {/* Editorial Text Block */}
-          <div className="max-w-[850px] text-left">
-            {/* Small Eyebrow Label */}
-            <span className="uppercase text-[11px] sm:text-[12px] tracking-[0.24em] text-neutral-400 font-medium mb-[18px] block transition-opacity duration-700">
-              OUR PHILOSOPHY
-            </span>
+        <div className="max-w-[1300px] mx-auto w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+            {/* Left Column: Text Content (~42% width / col-span-5) */}
+            <div className="lg:col-span-5 text-left space-y-6 sm:space-y-8">
+              {/* Small Eyebrow */}
+              <span className="text-[11px] uppercase tracking-[0.28em] text-neutral-400 font-medium block">
+                THE CHAAYÉ KHANA EXPERIENCE
+              </span>
 
-            {/* Large Editorial Headline */}
-            <h2 className="font-serif font-normal text-white tracking-[-0.02em] leading-[1.08] text-[38px] md:text-[48px] md:leading-[1.08] md:max-w-[720px] lg:text-[64px] lg:leading-[1.05] lg:max-w-[850px] mb-[28px] transition-all duration-700 delay-100">
-              An experience brewed around food, tea &amp; conversation.
-            </h2>
+              {/* Main Headline (Two strong editorial lines in serif) */}
+              <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-white font-normal leading-[1.08] tracking-tight">
+                <span className="block mb-2">MORE THAN A MEAL.</span>
+                <span className="block text-[#E5E0D8]">A PLACE TO SLOW DOWN.</span>
+              </h2>
 
-            {/* Short Supporting Paragraph */}
-            <p className="text-[16px] sm:text-[17px] leading-[1.7] text-[#B8B8B8] max-w-[650px] font-light mb-[70px] transition-all duration-700 delay-200">
-              From slow mornings over chai to memorable meals shared with the people who matter, every moment at Chaayé Khana is made to be enjoyed.
-            </p>
-          </div>
+              {/* Supporting Copy */}
+              <p className="text-neutral-400 text-base sm:text-lg lg:text-[19px] leading-relaxed font-light max-w-xl">
+                &ldquo;From slow mornings over chai to memorable meals shared with the people who matter, Chaayé Khana is a place to pause, connect and enjoy the moment.&rdquo;
+              </p>
+            </div>
 
-          {/* Large Cinematic Editorial Centerpiece Image */}
-          <div className="relative w-full max-w-[1200px] h-[420px] md:h-[500px] lg:h-[620px] rounded-[2px] border border-white/[0.06] overflow-hidden bg-neutral-950 transition-all duration-700 delay-300 group">
-            <img
-              src={rooftopImage}
-              alt="Atmospheric rooftop dining and artisanal tea conversation at Chaayé Khana DHA-4"
-              className="w-full h-full object-cover object-center transition-transform duration-1000 ease-out md:group-hover:scale-[1.015] motion-reduce:transition-none"
-              loading="lazy"
-              referrerPolicy="no-referrer"
-            />
-            {/* Subtle atmospheric vignette */}
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-black/10" />
+            {/* Right Column: Large Premium Editorial Image (~58% width / col-span-7) */}
+            <div className="lg:col-span-7 relative">
+              <div className="relative w-full h-[400px] sm:h-[480px] lg:h-[560px] rounded-[2px] border border-white/[0.08] overflow-hidden bg-neutral-950 group">
+                <img
+                  src={rooftopImage}
+                  alt="Atmospheric dining and chai culture at Chaayé Khana DHA-4"
+                  className="w-full h-full object-cover object-center transition-transform duration-1000 ease-out group-hover:scale-[1.02] motion-reduce:transition-none"
+                  loading="lazy"
+                  referrerPolicy="no-referrer"
+                />
+                {/* Subtle Cinematic Vignette */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10 pointer-events-none" />
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -367,6 +367,11 @@ export const HeroSection: React.FC = () => {
       {/* 6. SECTION 7: THE ART OF CHAI */}
       {/* ========================================================================= */}
       <TheArtOfChaiSection />
+
+      {/* ========================================================================= */}
+      {/* 6.5 SECTION: FROM THE KITCHEN (Chef's Specials) */}
+      {/* ========================================================================= */}
+      <FromTheKitchenSection />
 
       {/* ========================================================================= */}
       {/* 7. SECTION 8: PREMIUM INSTAGRAM-STYLE GALLERY */}

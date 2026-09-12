@@ -22,7 +22,7 @@ export const CK_BRANCHES: Branch[] = [
     lng: 73.0982,
     phone: '+92 51 111 242 293',
     openingHours: 'Monday – Sunday: 8:00 AM – 12:00 Midnight',
-    googleMapsUrl: 'https://maps.google.com/?q=Chaaye+Khana+DHA+Phase+4+Rawalpindi',
+    googleMapsUrl: 'https://www.google.com/maps/place/Chaay%C3%A9+Khana+Sector+F+Commercial+Area+DHA+Phase+4+Rawalpindi/@33.5651,73.0982,17z',
   },
   {
     id: 'islamabad',

@@ -37,14 +37,19 @@ export function createExpressApp(): Express {
   // 2. Authentication Endpoints (Server-Enforced)
   // ==========================================
   app.post('/api/auth/login', async (req, res) => {
-    const { email, password } = req.body || {};
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required.' });
+    let { email, password } = req.body || {};
+    // Single-branch setup: if email is omitted, automatically target DHA-4 admin
+    if (!email && password) {
+      email = 'dha4@example.com';
+    }
+
+    if (!password) {
+      return res.status(400).json({ error: 'Password is required.' });
     }
 
     const authResult = await authenticateUser(email, password);
     if (!authResult) {
-      return res.status(401).json({ error: 'Invalid email or password.' });
+      return res.status(401).json({ error: 'Invalid password.' });
     }
 
     // Set secure HTTP-only cookie for browser sessions

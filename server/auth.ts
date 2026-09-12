@@ -34,11 +34,8 @@ const SESSION_SECRET =
 
 const SESSION_TTL_SECONDS = 7 * 24 * 60 * 60; // 7 days
 
-// Default initial branch admin accounts with salted scrypt hashes
-// Plaintext defaults:
-// dha4@example.com -> 'dha4pass'
-// islamabad@example.com -> 'isbpass'
-// saddar@example.com -> 'saddarpass'
+// Default initial DHA-4 admin account with salted scrypt hash
+// Email: dha4@example.com
 const initialUserAccounts: Record<string, StoredUserAccount> = {
   'dha4@example.com': {
     id: 'user_dha4',
@@ -48,24 +45,6 @@ const initialUserAccounts: Record<string, StoredUserAccount> = {
     salt: '06bc96b2d7fa442bd4270a29b04b1fff',
     passwordHash:
       '4f2387698824d497a4aa4e6e8901f7fa4ce410625e30fd1bc235e5cddab83ca1e702910c9d1e492a37330e2d519361ccc7aedb0c75bfb721d8af0a11a6c4c259',
-  },
-  'islamabad@example.com': {
-    id: 'user_isb',
-    email: 'islamabad@example.com',
-    role: 'branch_admin',
-    branchId: 'islamabad',
-    salt: '722b5f8a67e3b3ddc4b7866cc35e92aa',
-    passwordHash:
-      '13c0e95b98a050fa48eb8d9f30492a7fddb33d9a9b50b0e4b3045ed5b9d8479454fd3230e8895f96ed4606623db3bcb38a278e0ecdb5a74cf70892b41b88995b',
-  },
-  'saddar@example.com': {
-    id: 'user_sdr',
-    email: 'saddar@example.com',
-    role: 'branch_admin',
-    branchId: 'saddar',
-    salt: '4577d7092eb4dbe5f8e440590472f3f1',
-    passwordHash:
-      '4ef081a4fa1ba9579ab29daed90aeca83cfa5aba6caf79ef5e761cf0b5adcca821eca35c54848d2e031f144ee3d81aab85b0265b3d50482eb3136d3d7dec2887',
   },
 };
 
