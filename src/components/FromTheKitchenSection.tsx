@@ -78,7 +78,7 @@ export const FromTheKitchenSection: React.FC = () => {
             
             {/* Minimal Image Caption */}
             <div className="absolute bottom-6 left-6 z-20 pointer-events-none bg-black/60 backdrop-blur-md px-4 py-2 rounded-[2px] border border-white/10 text-xs tracking-[0.2em] uppercase text-white/80 font-light">
-              <span className="text-amber-400 font-medium">0{activeDishIndex + 1}</span>
+              <span className="text-[#D8D4CD] font-medium">0{activeDishIndex + 1}</span>
               <span className="text-neutral-600 mx-2">/</span>
               <span>CHEF&apos;S TABLE</span>
             </div>

@@ -1169,14 +1169,14 @@ export const ThreeBreakfastScene: React.FC<ThreeBreakfastSceneProps> = ({
 
     // --- 19. High-Performance Render Loop ---
     let animationFrameId: number;
-    let clock = new THREE.Clock();
+    const startTime = performance.now();
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
 
       if (!isIntersecting) return;
 
-      const time = clock.getElapsedTime();
+      const time = (performance.now() - startTime) * 0.001;
       const ctrl = controlsRef.current;
 
       // Completely fixed camera matching the reference image composition

@@ -133,7 +133,7 @@ export const TheArtOfChaiSection: React.FC = () => {
 
             {/* Stage Counter Overlay */}
             <div className="absolute bottom-6 left-6 z-20 pointer-events-none flex items-center space-x-3 bg-black/60 backdrop-blur-md px-4 py-2 rounded-[2px] border border-white/10 text-xs tracking-[0.2em] uppercase text-white/80 font-light">
-              <span className="text-amber-400 font-medium">{activeChapter.number}</span>
+              <span className="text-[#D8D4CD] font-medium">{activeChapter.number}</span>
               <span className="text-neutral-600">/</span>
               <span>04 — {activeChapter.title}</span>
             </div>
@@ -159,7 +159,7 @@ export const TheArtOfChaiSection: React.FC = () => {
                     }`}
                   >
                     <div className="flex items-center space-x-4">
-                      <span className={`text-xs font-mono tracking-[0.2em] ${isActive ? 'text-amber-400' : 'text-neutral-500'}`}>
+                      <span className={`text-xs font-mono tracking-[0.2em] ${isActive ? 'text-[#D8D4CD]' : 'text-neutral-500'}`}>
                         {chap.number}
                       </span>
                       <span className="font-serif text-lg tracking-wide">
@@ -174,7 +174,7 @@ export const TheArtOfChaiSection: React.FC = () => {
 
             {/* Active Chapter Details */}
             <div className="pt-6 border-t border-white/[0.08] min-h-[160px]">
-              <span className="text-[10px] uppercase tracking-[0.28em] text-amber-400 font-medium block mb-2">
+              <span className="text-[10px] uppercase tracking-[0.28em] text-neutral-400 font-medium block mb-2">
                 {chapSubtitle(activeChapter.id)}
               </span>
               <h3 className="font-serif text-2xl text-white font-normal mb-3">
@@ -194,7 +194,7 @@ export const TheArtOfChaiSection: React.FC = () => {
           {chapters.map((chap) => (
             <div key={chap.id} className="space-y-6 text-left border-b border-white/[0.06] pb-16 last:border-b-0 last:pb-0">
               <div className="flex items-center space-x-3">
-                <span className="text-xs font-mono tracking-[0.2em] text-amber-400">{chap.number}</span>
+                <span className="text-xs font-mono tracking-[0.2em] text-[#D8D4CD]">{chap.number}</span>
                 <span className="text-neutral-600">—</span>
                 <span className="text-xs uppercase tracking-[0.25em] text-neutral-400 font-medium">{chap.title}</span>
               </div>

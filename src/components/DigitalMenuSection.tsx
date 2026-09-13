@@ -8,7 +8,7 @@ interface DigitalMenuSectionProps {
 }
 
 export const DigitalMenuSection: React.FC<DigitalMenuSectionProps> = ({ initialCategoryId }) => {
-  const { menuItems, categories } = useCafe();
+  const { menuItems, categories, setSelectedItemForModal } = useCafe();
   const [activeCategoryId, setActiveCategoryId] = useState<string>(initialCategoryId || 'breakfast');
 
   // Specific category metadata and notes
@@ -159,10 +159,20 @@ export const DigitalMenuSection: React.FC<DigitalMenuSectionProps> = ({ initialC
               <article
                 key={item.id}
                 id={`food-card-${item.id}`}
-                className="group flex flex-col cursor-default"
+                role="button"
+                tabIndex={0}
+                aria-label={`View details for ${item.name}`}
+                onClick={() => setSelectedItemForModal(item)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setSelectedItemForModal(item);
+                  }
+                }}
+                className="group flex flex-col cursor-pointer focus:outline-hidden focus-visible:ring-1 focus-visible:ring-white rounded-[2px]"
               >
                 {/* Image Container with 4:3 Aspect Ratio and Subtle Hover Zoom */}
-                <div className="relative w-full aspect-[4/3] max-h-[360px] min-h-[260px] rounded-[2px] overflow-hidden bg-neutral-950 border border-white/[0.06]">
+                <div className="relative w-full aspect-[4/3] max-h-[360px] min-h-[260px] rounded-[2px] overflow-hidden bg-neutral-950 border border-white/[0.06] group-hover:border-white/20 transition-colors duration-300">
                   <img
                     src={item.image}
                     alt={`${item.name} served at Chaayé Khana DHA-4`}

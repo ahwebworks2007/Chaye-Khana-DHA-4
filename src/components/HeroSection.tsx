@@ -20,8 +20,10 @@ export const HeroSection: React.FC = () => {
   const { cafeSettings, setCurrentView, activeBranch } = useCafe();
   const [activeMenuCategory, setActiveMenuCategory] = useState<string>('breakfast');
 
-  // Extremely subtle slow cinematic parallax (clamped strictly to 10-12px, desktop only, respects reduced-motion)
-  const [parallaxOffset, setParallaxOffset] = useState<number>(0);
+  // Sophisticated subtle scroll transition (desktop only, clamped, zero scroll-jacking)
+  const [bgOffset, setBgOffset] = useState<number>(0);
+  const [textExitOffset, setTextExitOffset] = useState<number>(0);
+  const [heroOpacity, setHeroOpacity] = useState<number>(1);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -30,7 +32,7 @@ export const HeroSection: React.FC = () => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return;
 
-    // Disable parallax on mobile/tablet to maximize performance and smoothness
+    // Disable parallax calculations on mobile/touch to maximize battery, smoothness, and stability
     if (window.innerWidth < 1024) return;
 
     let ticking = false;
@@ -38,10 +40,18 @@ export const HeroSection: React.FC = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
           const scrollY = window.scrollY;
-          // Maximum 12px slow cinematic drift within the hero viewport
-          if (scrollY < 1000) {
-            const offset = Math.min(12, Math.max(0, scrollY * 0.025));
-            setParallaxOffset(offset);
+          if (scrollY < 900) {
+            // Background stays visually grounded with ultra-subtle anchored drift (max 24px)
+            const bg = Math.min(24, scrollY * 0.04);
+            setBgOffset(bg);
+
+            // Hero text & 3D smoothly move upward as user scrolls down (max 40px)
+            const textOffset = Math.min(40, scrollY * 0.08);
+            setTextExitOffset(textOffset);
+
+            // Subtle gentle fade as the hero reaches the transition boundary
+            const opacity = Math.max(0.2, 1 - scrollY / 850);
+            setHeroOpacity(opacity);
           }
           ticking = false;
         });
@@ -58,11 +68,15 @@ export const HeroSection: React.FC = () => {
       {/* ========================================================================= */}
       {/* 1. HERO SECTION: Full-Screen Immersive Editorial Presentation */}
       {/* ========================================================================= */}
-      <section className="relative min-h-[calc(100vh-4.5rem)] lg:min-h-screen flex items-center border-b border-neutral-900 overflow-hidden bg-[#030304]">
+      <section className="relative min-h-[calc(100svh-4.5rem)] lg:min-h-screen flex items-center border-b border-neutral-900 overflow-hidden bg-[#030304]">
         {/* Atmospheric Cinematic Restaurant Background Layer */}
         <div
           className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none select-none z-0"
           aria-hidden="true"
+          style={{
+            transform: bgOffset > 0 ? `translateY(${bgOffset}px)` : undefined,
+            willChange: 'transform',
+          }}
         >
           {/* Base cinematic restaurant interior photograph (Full Bleed, Edge-to-Edge) */}
           <img
@@ -74,17 +88,25 @@ export const HeroSection: React.FC = () => {
             className="w-full h-full object-cover object-center scale-100 transition-transform duration-700 ease-out motion-reduce:transform-none"
           />
 
-          {/* Subtle Dark Readability Overlay: Desktop: ~18% overlay, Mobile: ~28% overlay */}
-          <div className="absolute inset-0 bg-black/28 lg:bg-black/18" />
+          {/* Subtle Dark Readability Overlay: Desktop: ~20% overlay, Mobile: ~28% overlay */}
+          <div className="absolute inset-0 bg-black/28 lg:bg-black/20" />
           
           {/* Gentle left-to-right fade-out gradient to aid text readability without hiding the image */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/45 via-black/10 to-transparent lg:from-black/35 lg:via-transparent lg:to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/20 to-transparent lg:from-black/45 lg:via-black/15 lg:to-transparent" />
           
-          {/* Bottom transition gradient to ease transition to the next section */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#030304]/60" />
+          {/* Bottom transition gradient to ease seamless reveal into next section */}
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#030304]/80" />
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-20 lg:py-32 w-full relative z-10">
+        {/* Hero Interactive Foreground Container */}
+        <div
+          className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-20 lg:py-32 w-full relative z-10 transition-opacity duration-300"
+          style={{
+            transform: textExitOffset > 0 ? `translateY(-${textExitOffset}px)` : undefined,
+            opacity: heroOpacity,
+            willChange: 'transform, opacity',
+          }}
+        >
           <div className="max-w-3xl space-y-6 sm:space-y-8 text-left">
             {/* 1. Small Eyebrow */}
             <div className="transition-all duration-700 delay-100 ease-out">
@@ -136,7 +158,7 @@ export const HeroSection: React.FC = () => {
       {/* ========================================================================= */}
       <section
         id="brand-statement-section"
-        className="relative bg-[#030304] text-white py-24 sm:py-32 lg:py-40 px-6 sm:px-10 lg:px-16 overflow-hidden"
+        className="relative z-20 bg-[#030304] text-white py-24 sm:py-32 lg:py-40 px-6 sm:px-10 lg:px-16 overflow-hidden -mt-px shadow-2xl"
       >
         <div className="max-w-[1300px] mx-auto w-full">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
