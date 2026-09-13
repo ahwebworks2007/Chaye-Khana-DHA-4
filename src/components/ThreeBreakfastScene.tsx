@@ -1264,11 +1264,11 @@ export const ThreeBreakfastScene: React.FC<ThreeBreakfastSceneProps> = ({
   }, [onSceneReady]);
 
   return (
-    <div className={`relative w-full h-full select-none ${className}`}>
+    <div className={`relative w-full h-full select-none max-w-full overflow-hidden ${className}`}>
       {/* Real 3D WebGL Canvas Container */}
       <div
         ref={containerRef}
-        className="w-full h-[420px] sm:h-[500px] lg:h-[600px] pointer-events-none relative"
+        className="w-full h-[420px] sm:h-[500px] lg:h-[600px] pointer-events-none relative max-w-full overflow-hidden"
       />
     </div>
   );
