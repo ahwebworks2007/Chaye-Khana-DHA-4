@@ -14,6 +14,8 @@ interface PageSEOConfig {
   breadcrumbs: { name: string; url: string }[];
 }
 
+const DEFAULT_OG_IMAGE = 'https://chaye-khana-dha-4.vercel.app/og-image.jpg';
+
 const SEO_CONFIGS: Record<string, PageSEOConfig> = {
   home: {
     title: 'Chaayé Khana DHA-4 | Tea, Food & Dining in Rawalpindi',
@@ -21,7 +23,7 @@ const SEO_CONFIGS: Record<string, PageSEOConfig> = {
       'Experience Chaayé Khana DHA-4 — a premium dining destination for signature chai, breakfast, delicious food and memorable moments in Rawalpindi.',
     canonicalPath: '/',
     ogType: 'restaurant',
-    image: 'https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1200&q=85',
+    image: DEFAULT_OG_IMAGE,
     breadcrumbs: [
       { name: 'Home', url: 'https://chaayekhanadha4.com/' },
     ],
@@ -32,7 +34,7 @@ const SEO_CONFIGS: Record<string, PageSEOConfig> = {
       'Explore the complete Chaayé Khana DHA-4 menu. Featuring artisanal Karak chai, specialty teas, breakfast platters, savory entrees, burgers and bakery classics in Rawalpindi.',
     canonicalPath: '/?view=menu',
     ogType: 'restaurant.menu',
-    image: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=1200&q=85',
+    image: DEFAULT_OG_IMAGE,
     breadcrumbs: [
       { name: 'Home', url: 'https://chaayekhanadha4.com/' },
       { name: 'Menu', url: 'https://chaayekhanadha4.com/?view=menu' },
@@ -44,7 +46,7 @@ const SEO_CONFIGS: Record<string, PageSEOConfig> = {
       'Discover the heritage and craft of Chaayé Khana DHA-4. Built on an uncompromising passion for authentic tea brewing, honest culinary traditions, and warm hospitality.',
     canonicalPath: '/?view=about',
     ogType: 'article',
-    image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=85',
+    image: DEFAULT_OG_IMAGE,
     breadcrumbs: [
       { name: 'Home', url: 'https://chaayekhanadha4.com/' },
       { name: 'Our Story', url: 'https://chaayekhanadha4.com/?view=about' },
@@ -56,7 +58,7 @@ const SEO_CONFIGS: Record<string, PageSEOConfig> = {
       'Browse the photo gallery of Chaayé Khana DHA-4 — artisanal tea rituals, evening rooftop dining, library lounges, and freshly prepared kitchen moments.',
     canonicalPath: '/?view=gallery',
     ogType: 'website',
-    image: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=1200&q=85',
+    image: DEFAULT_OG_IMAGE,
     breadcrumbs: [
       { name: 'Home', url: 'https://chaayekhanadha4.com/' },
       { name: 'Gallery', url: 'https://chaayekhanadha4.com/?view=gallery' },
@@ -68,7 +70,7 @@ const SEO_CONFIGS: Record<string, PageSEOConfig> = {
       'Visit Chaayé Khana DHA-4 in Sector C/F Commercial Area, Rawalpindi. Find operating hours, physical address, reservations, and front desk contact details.',
     canonicalPath: '/?view=contact',
     ogType: 'restaurant',
-    image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=85',
+    image: DEFAULT_OG_IMAGE,
     breadcrumbs: [
       { name: 'Home', url: 'https://chaayekhanadha4.com/' },
       { name: 'Visit Us', url: 'https://chaayekhanadha4.com/?view=contact' },
@@ -80,7 +82,7 @@ const SEO_CONFIGS: Record<string, PageSEOConfig> = {
       'Explore Chaayé Khana branches across Pakistan. Search our locations in Rawalpindi, Islamabad, Lahore, Karachi, and Peshawar to find the nearest outlet.',
     canonicalPath: '/?view=branches',
     ogType: 'website',
-    image: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=85',
+    image: DEFAULT_OG_IMAGE,
     breadcrumbs: [
       { name: 'Home', url: 'https://chaayekhanadha4.com/' },
       { name: 'Branches', url: 'https://chaayekhanadha4.com/?view=branches' },
@@ -91,6 +93,7 @@ const SEO_CONFIGS: Record<string, PageSEOConfig> = {
     description: 'The page you are looking for could not be found at Chaayé Khana DHA-4.',
     canonicalPath: '/404',
     ogType: 'website',
+    image: DEFAULT_OG_IMAGE,
     breadcrumbs: [
       { name: 'Home', url: 'https://chaayekhanadha4.com/' },
       { name: '404 Not Found', url: 'https://chaayekhanadha4.com/404' },
