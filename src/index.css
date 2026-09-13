@@ -2,61 +2,95 @@
 
 @layer base {
   :root {
-    --bg-main: #0a0a0a;
-    --bg-surface: #171717;
-    --bg-card: #171717;
-    --bg-subtle: #262626;
-    --text-primary: #ffffff;
-    --text-secondary: #a3a3a3;
-    --text-muted: #737373;
-    --border-color: #262626;
-    --border-hover: #404040;
+    --bg-main: #030304;
+    --bg-surface: #0a0a0c;
+    --bg-card: #09090b;
+    --bg-subtle: #141417;
+    --text-primary: #F5F4F0;
+    --text-secondary: #AFAFAF;
+    --text-muted: #71717A;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(255, 255, 255, 0.25);
     --accent-color: #ffffff;
-    --accent-hover: #e5e5e5;
+    --accent-hover: #eae6df;
   }
 
   html.light-mode {
-    --bg-main: #F3EDE3;
-    --bg-surface: #FAF6EE;
-    --bg-card: #FAF6EE;
-    --bg-subtle: #EBE4D8;
+    --bg-main: #F4EFEA;
+    --bg-surface: #ECE5DC;
+    --bg-card: #ECE5DC;
+    --bg-subtle: #E3D9CC;
     --text-primary: #1C1917;
     --text-secondary: #57534E;
-    --text-muted: #878076;
-    --border-color: #DFD5C4;
-    --border-hover: #C5B8A1;
+    --text-muted: #78716C;
+    --border-color: #DBD2C4;
+    --border-hover: #C2B7A5;
     --accent-color: #1C1917;
     --accent-hover: #292524;
   }
 
-  /* Smooth global transition for theme toggling background/color/border */
-  html, body, div, section, header, footer, p, h1, h2, h3, h4, h5, h6, span, a, button, input, select, textarea, li, nav, article, img {
-    transition: background-color 500ms ease-in-out, color 500ms ease-in-out, border-color 500ms ease-in-out, opacity 500ms ease-in-out, fill 500ms ease-in-out, stroke 500ms ease-in-out;
+  /* Smooth 300ms global transition for theme switching on surfaces, typography, and borders */
+  html, body, section, header, footer, nav, article, aside, main {
+    transition: background-color 300ms ease-in-out, color 300ms ease-in-out, border-color 300ms ease-in-out;
   }
 
-  /* Map hardcoded background colors to theme variables under light-mode */
+  /* ========================================================================= */
+  /* LIGHT MODE SURFACE & BACKGROUND MAPPINGS (Warm Ivory & Soft Beige) */
+  /* ========================================================================= */
+  html.light-mode {
+    background-color: var(--bg-main) !important;
+    color: var(--text-primary) !important;
+  }
+
+  html.light-mode body {
+    background-color: var(--bg-main) !important;
+    color: var(--text-primary) !important;
+  }
+
+  /* Map container backgrounds to warm ivory */
   html.light-mode .bg-\[\#030304\],
-  html.light-mode .bg-black,
+  html.light-mode .bg-\[\#020203\],
+  html.light-mode .bg-\[\#040405\],
   html.light-mode .bg-\[\#050506\],
   html.light-mode .bg-\[\#050507\],
   html.light-mode .bg-\[\#070709\],
-  html.light-mode .bg-\[\#020203\],
-  html.light-mode .bg-\[\#040405\],
   html.light-mode .bg-neutral-950,
   html.light-mode .bg-stone-950 {
     background-color: var(--bg-main) !important;
   }
 
+  /* Map card/panel surfaces to soft beige */
   html.light-mode .bg-\[\#09090b\],
-  html.light-mode .bg-\[\#0a0a0d\],
   html.light-mode .bg-\[\#0a0a0c\],
+  html.light-mode .bg-\[\#0a0a0d\],
   html.light-mode .bg-neutral-900,
   html.light-mode .bg-stone-900 {
     background-color: var(--bg-surface) !important;
   }
 
-  /* Map hardcoded text colors to theme variables under light-mode */
+  /* Header sticky background in light mode */
+  html.light-mode header.bg-\[\#030304\]\/90 {
+    background-color: rgba(244, 239, 234, 0.92) !important;
+  }
+  html.light-mode header.bg-black\/30 {
+    background-color: rgba(244, 239, 234, 0.45) !important;
+  }
+
+  /* Mobile menu overlay in light mode */
+  html.light-mode #mobile-nav-overlay {
+    background-color: rgba(244, 239, 234, 0.98) !important;
+  }
+
+  /* ========================================================================= */
+  /* LIGHT MODE TYPOGRAPHY MAPPINGS (Charcoal & Muted Warm Neutral) */
+  /* ========================================================================= */
   html.light-mode .text-white,
+  html.light-mode .text-\[\#F5F4F0\],
+  html.light-mode .text-\[\#F5F4F0\]\/95,
+  html.light-mode .text-\[\#E2DDD5\],
+  html.light-mode .text-\[\#E2DDD5\]\/90,
+  html.light-mode .text-\[\#E8E4DC\],
+  html.light-mode .text-\[\#D6D4CD\],
   html.light-mode .text-stone-100,
   html.light-mode .text-neutral-100,
   html.light-mode .text-stone-200,
@@ -68,39 +102,99 @@
 
   html.light-mode .text-neutral-400,
   html.light-mode .text-stone-400,
-  html.light-mode .text-\[\#AFAFAF\] {
+  html.light-mode .text-\[\#AFAFAF\],
+  html.light-mode .text-\[\#8E8E93\],
+  html.light-mode .text-\[\#C0BCB4\],
+  html.light-mode .text-\[\#D8D4CD\] {
     color: var(--text-secondary) !important;
   }
 
-  /* Map hardcoded borders to theme variables under light-mode */
+  html.light-mode .text-neutral-500,
+  html.light-mode .text-\[\#71717A\] {
+    color: var(--text-muted) !important;
+  }
+
+  /* ========================================================================= */
+  /* LIGHT MODE BORDERS & DIVIDERS (Muted Neutral Gray) */
+  /* ========================================================================= */
   html.light-mode .border-white\/\[0\.08\],
-  html.light-mode .border-white\/10,
+  html.light-mode .border-white\/\[0\.07\],
   html.light-mode .border-white\/\[0\.06\],
   html.light-mode .border-white\/\[0\.05\],
+  html.light-mode .border-white\/10,
+  html.light-mode .border-white\/15,
+  html.light-mode .border-white\/20,
+  html.light-mode .border-white\/25,
+  html.light-mode .border-neutral-800,
+  html.light-mode .border-neutral-900,
   html.light-mode .border-stone-800,
   html.light-mode .border-stone-700 {
     border-color: var(--border-color) !important;
   }
 
-  /* Adjust icons and buttons specifically for Day Mode */
-  html.light-mode svg {
-    stroke: currentColor;
+  html.light-mode .bg-white\/\[0\.05\],
+  html.light-mode .bg-white\/\[0\.06\],
+  html.light-mode .bg-white\/\[0\.07\] {
+    background-color: var(--border-color) !important;
   }
 
-  /* Soften gradients and overlays in Day Mode */
-  html.light-mode .bg-\[radial-gradient\(ellipse_60\%_40\%_at_50\%_0\%_2Crgba\(255\%_2C255\%_2C255\%_2C0\.015\)\%_2Ctransparent\)\] {
-    background-image: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(0, 0, 0, 0.03), transparent) !important;
-  }
-  html.light-mode .bg-\[radial-gradient\(ellipse_80\%_60\%_at_50\%_0\%_2Crgba\(255\%_2C255\%_2C255\%_2C0\.02\)\%_2Ctransparent\)\] {
-    background-image: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0, 0, 0, 0.04), transparent) !important;
-  }
-
-  /* Preserve original visual aesthetics on hover buttons/links */
+  /* ========================================================================= */
+  /* BUTTONS & HOVER STATES IN LIGHT MODE */
+  /* ========================================================================= */
   html.light-mode .hover\:text-white:hover {
     color: var(--text-primary) !important;
   }
-  html.light-mode .hover\:bg-white\/\[0\.05\]:hover {
-    background-color: rgba(0, 0, 0, 0.05) !important;
+  html.light-mode .hover\:bg-white\/\[0\.05\]:hover,
+  html.light-mode .hover\:bg-white\/\[0\.04\]:hover {
+    background-color: rgba(28, 25, 23, 0.05) !important;
+  }
+  html.light-mode .hover\:border-white:hover,
+  html.light-mode .hover\:border-white\/25:hover,
+  html.light-mode .hover\:border-white\/30:hover {
+    border-color: var(--border-hover) !important;
+  }
+
+  /* Solid white buttons invert cleanly to charcoal */
+  html.light-mode .bg-white.text-black {
+    background-color: #1C1917 !important;
+    color: #F4EFEA !important;
+    border-color: #1C1917 !important;
+  }
+  html.light-mode .bg-white.text-black:hover {
+    background-color: #292524 !important;
+  }
+  html.light-mode .bg-white.text-black svg {
+    color: #F4EFEA !important;
+  }
+
+  /* Map coordinate icon */
+  html.light-mode .bg-red-500\/10 {
+    background-color: rgba(239, 68, 68, 0.08) !important;
+  }
+
+  /* Ambient radial gradient highlights in light mode */
+  html.light-mode .bg-\[radial-gradient\(ellipse_60\%_40\%_at_50\%_0\%_2Crgba\(255\%_2C255\%_2C255\%_2C0\.015\)\%_2Ctransparent\)\] {
+    background-image: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(0, 0, 0, 0.025), transparent) !important;
+  }
+  html.light-mode .bg-\[radial-gradient\(ellipse_70\%_50\%_at_50\%_0\%_2Crgba\(255\%_2C255\%_2C255\%_2C0\.02\)\%_2Ctransparent\)\] {
+    background-image: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(0, 0, 0, 0.03), transparent) !important;
+  }
+
+  /* Lightbox container remains immersive dark for photography */
+  #gallery-lightbox-overlay {
+    background-color: rgba(0, 0, 0, 0.95) !important;
+    color: #ffffff !important;
+  }
+  #gallery-lightbox-overlay .text-white {
+    color: #ffffff !important;
+  }
+  #gallery-lightbox-overlay .text-neutral-400 {
+    color: #a3a3a3 !important;
+  }
+
+  /* Preserved natural photography: no filters */
+  img {
+    filter: none !important;
   }
 
   html {
@@ -132,16 +226,9 @@
   background-repeat: repeat;
 }
 
-/* Theme variable utility classes */
-.bg-theme-main { background-color: var(--bg-main); }
-.bg-theme-surface { background-color: var(--bg-surface); }
-.bg-theme-card { background-color: var(--bg-card); }
-.bg-theme-subtle { background-color: var(--bg-subtle); }
-.text-theme-primary { color: var(--text-primary); }
-.text-theme-secondary { color: var(--text-secondary); }
-.text-theme-muted { color: var(--text-muted); }
-.border-theme { border-color: var(--border-color); }
-.border-theme-hover:hover { border-color: var(--border-hover); }
+html.light-mode .film-grain {
+  opacity: 0.02;
+}
 
 /* Custom subtle minimalist scrollbars */
 ::-webkit-scrollbar {
@@ -152,13 +239,15 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #404040;
+  background: #333333;
   border-radius: 9999px;
 }
 html.light-mode ::-webkit-scrollbar-thumb {
-  background: #d4d4d4;
+  background: #C2B7A5;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #525252;
+  background: #555555;
 }
-
+html.light-mode ::-webkit-scrollbar-thumb:hover {
+  background: #A89D8B;
+}

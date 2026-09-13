@@ -157,18 +157,19 @@ export const Navbar: React.FC = () => {
             <div className="flex-1 flex items-center justify-end gap-3 sm:gap-4">
 
 
-              {/* Day/Night Theme Toggle */}
+              {/* Discreet Day/Night Theme Toggle */}
               <button
                 id="theme-toggle-btn"
+                type="button"
                 onClick={toggleTheme}
-                className="p-2 rounded-full text-neutral-400 hover:text-white hover:bg-white/[0.05] transition-all duration-300 cursor-pointer focus:outline-hidden flex items-center justify-center"
-                aria-label={theme === 'dark' ? 'Switch to Day mode' : 'Switch to Night mode'}
-                title={theme === 'dark' ? 'Switch to Day mode' : 'Switch to Night mode'}
+                className="w-8 h-8 rounded-[2px] border border-white/10 hover:border-white/25 text-neutral-400 hover:text-white bg-transparent hover:bg-white/[0.04] transition-all duration-300 cursor-pointer focus:outline-hidden focus-visible:ring-1 focus-visible:ring-current flex items-center justify-center select-none"
+                aria-label={theme === 'dark' ? 'Switch to warm light theme' : 'Switch to dark theme'}
+                title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
               >
                 {theme === 'dark' ? (
-                  <Sun className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px] transition-transform hover:rotate-45 duration-500" />
+                  <Sun className="w-3.5 h-3.5 transition-transform duration-300 hover:rotate-45" />
                 ) : (
-                  <Moon className="w-[18px] h-[18px] sm:w-[20px] sm:h-[20px] transition-transform hover:-rotate-12 duration-500" />
+                  <Moon className="w-3.5 h-3.5 transition-transform duration-300 hover:-rotate-12" />
                 )}
               </button>
 
