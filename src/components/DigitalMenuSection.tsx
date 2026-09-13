@@ -18,7 +18,6 @@ export const DigitalMenuSection: React.FC<DigitalMenuSectionProps> = ({ initialC
       'Choice of bread: White / Brown / Multigrain',
       'Choice of side: Meat Slice / Hash Brown',
       'All omelets are made with 2 eggs',
-      'Extra egg — PKR 150',
     ],
     'sandwiches-burgers': [
       'Bread choices: White / Brown / Focaccia',
