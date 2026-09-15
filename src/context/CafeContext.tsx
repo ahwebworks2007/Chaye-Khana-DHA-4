@@ -253,7 +253,7 @@ export const CafeProvider: React.FC<{ children: React.ReactNode }> = ({
     optionalPassword?: string
   ): Promise<boolean> => {
     try {
-      const email = optionalPassword ? passwordOrEmail.trim() : 'dha4@example.com';
+      const email = optionalPassword ? passwordOrEmail.trim() : 'admin@chaayekhana.com';
       const password = (optionalPassword || passwordOrEmail).trim();
 
       const res = await fetch('/api/auth/login', {

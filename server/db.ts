@@ -303,14 +303,24 @@ export interface StoredDbUser {
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 
 const defaultUserSeed: Record<string, StoredDbUser> = {
+  'admin@chaayekhana.com': {
+    id: 'user_dha4',
+    email: 'admin@chaayekhana.com',
+    role: 'branch_admin',
+    branchId: 'dha-phase-4',
+    salt: '06c96520672f00a8d6aee395eded95e1',
+    passwordHash:
+      '7f776b60c46692a23237bbe906e84e60c866b6e780aa76f9b13f155aad10044c88668d41301d260bbe701ae019f1f7a23d7c041cc7e59be8177e6826646aa75d',
+    createdAt: 1726150000000,
+  },
   'dha4@example.com': {
     id: 'user_dha4',
     email: 'dha4@example.com',
     role: 'branch_admin',
     branchId: 'dha-phase-4',
-    salt: '06bc96b2d7fa442bd4270a29b04b1fff',
+    salt: '06c96520672f00a8d6aee395eded95e1',
     passwordHash:
-      '4f2387698824d497a4aa4e6e8901f7fa4ce410625e30fd1bc235e5cddab83ca1e702910c9d1e492a37330e2d519361ccc7aedb0c75bfb721d8af0a11a6c4c259',
+      '7f776b60c46692a23237bbe906e84e60c866b6e780aa76f9b13f155aad10044c88668d41301d260bbe701ae019f1f7a23d7c041cc7e59be8177e6826646aa75d',
     createdAt: 1726150000000,
   },
   'islamabad@example.com': {

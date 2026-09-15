@@ -8,6 +8,11 @@ export interface AdminUser {
 // Client-side representation of public user metadata (NO passwords or hashes stored in frontend)
 export const KNOWN_ADMIN_ACCOUNTS: Omit<AdminUser, 'id'>[] = [
   {
+    email: 'admin@chaayekhana.com',
+    role: 'branch_admin',
+    branchId: 'dha-phase-4',
+  },
+  {
     email: 'dha4@example.com',
     role: 'branch_admin',
     branchId: 'dha-phase-4',
