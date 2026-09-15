@@ -1,0 +1,106 @@
+{
+  "entities": {
+    "MenuCategory": {
+      "title": "MenuCategory",
+      "description": "A food or beverage category in the cafe menu",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "order": { "type": "number" },
+        "isActive": { "type": "boolean" },
+        "iconName": { "type": "string" },
+        "description": { "type": "string" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["id", "name", "order", "isActive"]
+    },
+    "MenuItem": {
+      "title": "MenuItem",
+      "description": "An item or dish on the cafe menu",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "categoryId": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "image": { "type": "string" },
+        "variants": { "type": "array" },
+        "options": { "type": "array" },
+        "isAvailable": { "type": "boolean" },
+        "isPopular": { "type": "boolean" },
+        "isChefsSpecial": { "type": "boolean" },
+        "isVegetarian": { "type": "boolean" },
+        "isSpicy": { "type": "boolean" },
+        "priceNote": { "type": "string" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["id", "name", "categoryId", "price", "isAvailable"]
+    },
+    "CafeSettings": {
+      "title": "CafeSettings",
+      "description": "Single-location cafe configuration, delivery, pickup, and contact details",
+      "type": "object",
+      "properties": {
+        "cafeName": { "type": "string" },
+        "tagline": { "type": "string" },
+        "phone": { "type": "string" },
+        "whatsapp": { "type": "string" },
+        "email": { "type": "string" },
+        "address": { "type": "string" },
+        "city": { "type": "string" },
+        "googleMapsUrl": { "type": "string" },
+        "openingHoursDisplay": { "type": "string" },
+        "aboutStory": { "type": "string" },
+        "foodPhilosophy": { "type": "string" },
+        "taxRatePercent": { "type": "number" },
+        "deliverySettings": { "type": "object" },
+        "pickupSettings": { "type": "object" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["cafeName", "phone", "address"]
+    },
+    "CustomerOrder": {
+      "title": "CustomerOrder",
+      "description": "A guest customer food and drink order",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customerName": { "type": "string" },
+        "customerPhone": { "type": "string" },
+        "customerEmail": { "type": "string" },
+        "orderType": { "type": "string" },
+        "items": { "type": "array" },
+        "subtotal": { "type": "number" },
+        "deliveryFee": { "type": "number" },
+        "tax": { "type": "number" },
+        "total": { "type": "number" },
+        "status": { "type": "string" },
+        "deliveryAddress": { "type": "string" },
+        "deliveryLandmark": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "createdAtTimestamp": { "type": "number" }
+      },
+      "required": ["id", "customerName", "customerPhone", "items", "total", "status", "createdAtTimestamp"]
+    }
+  },
+  "firestore": {
+    "/categories/{categoryId}": {
+      "schema": "MenuCategory",
+      "description": "Public cafe menu categories"
+    },
+    "/menu_items/{itemId}": {
+      "schema": "MenuItem",
+      "description": "Public cafe menu items"
+    },
+    "/cafe_settings/{settingId}": {
+      "schema": "CafeSettings",
+      "description": "Public cafe configuration and ordering settings"
+    },
+    "/orders/{orderId}": {
+      "schema": "CustomerOrder",
+      "description": "Guest orders and status tracking"
+    }
+  }
+}

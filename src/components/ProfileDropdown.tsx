@@ -1,17 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  User,
   MapPin,
   Phone,
   Clock,
-  ChevronRight,
   Package,
-  LogOut,
   ArrowLeft,
   Shield,
+  Search,
+  CheckCircle2,
 } from 'lucide-react';
 import { useCafe } from '../context/CafeContext';
 import { navigateTo } from '../utils/router';
+import { CustomerOrder } from '../types';
 
 interface ProfileDropdownProps {
   isAdminContext?: boolean;
@@ -20,25 +20,16 @@ interface ProfileDropdownProps {
 export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ isAdminContext = false }) => {
   const {
     activeBranch,
+    cafeSettings,
+    fetchOrderForTracking,
   } = useCafe();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [isCustomerLoggedIn, setIsCustomerLoggedIn] = useState<boolean>(() => {
-    return localStorage.getItem('ck_customer_logged') === 'true';
-  });
-  const [customerIdentifier, setCustomerIdentifier] = useState<string>(() => {
-    return localStorage.getItem('ck_customer_id') || '';
-  });
-
-  const selectedBranch = activeBranch;
-
-  // Login inline form state
-  const [showCustomerLoginForm, setShowCustomerLoginForm] = useState(false);
-  const [customerEmailOrPhone, setCustomerEmailOrPhone] = useState('');
-  const [loginError, setLoginError] = useState('');
-
-  // Active simulated tracking order state
-  const [showTracker, setShowTracker] = useState(false);
+  const [orderQuery, setOrderQuery] = useState('');
+  const [trackedOrder, setTrackedOrder] = useState<CustomerOrder | null>(null);
+  const [isSearchingOrder, setIsSearchingOrder] = useState(false);
+  const [orderSearchError, setOrderSearchError] = useState('');
+  const [showTrackerView, setShowTrackerView] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -47,15 +38,15 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ isAdminContext
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setIsOpen(false);
-        setShowCustomerLoginForm(false);
-        setShowTracker(false);
+        setShowTrackerView(false);
+        setOrderSearchError('');
       }
     };
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setIsOpen(false);
-        setShowCustomerLoginForm(false);
-        setShowTracker(false);
+        setShowTrackerView(false);
+        setOrderSearchError('');
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -66,256 +57,198 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ isAdminContext
     };
   }, []);
 
-  // Handle Customer Login action
-  const handleCustomerLoginSubmit = (e: React.FormEvent) => {
+  const handleSearchOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoginError('');
-
-    const query = customerEmailOrPhone.trim();
+    const query = orderQuery.trim();
     if (!query) {
-      setLoginError('Please enter email or phone.');
+      setOrderSearchError('Please enter an order ID (e.g. ORD-123456)');
       return;
     }
 
-    // Simulate login
-    localStorage.setItem('ck_customer_logged', 'true');
-    localStorage.setItem('ck_customer_id', query);
-    setIsCustomerLoggedIn(true);
-    setCustomerIdentifier(query);
-    setShowCustomerLoginForm(false);
-    setCustomerEmailOrPhone('');
-  };
+    setIsSearchingOrder(true);
+    setOrderSearchError('');
 
-  const handleCustomerLogout = () => {
-    localStorage.removeItem('ck_customer_logged');
-    localStorage.removeItem('ck_customer_id');
-    setIsCustomerLoggedIn(false);
-    setCustomerIdentifier('');
-    setShowTracker(false);
+    try {
+      const order = await fetchOrderForTracking(query);
+      if (order) {
+        setTrackedOrder(order);
+        setShowTrackerView(true);
+      } else {
+        setOrderSearchError('Order not found. Please verify your order number.');
+      }
+    } catch {
+      setOrderSearchError('Unable to retrieve order details.');
+    } finally {
+      setIsSearchingOrder(false);
+    }
   };
 
   return (
     <div className="relative inline-flex items-center" ref={dropdownRef}>
-      {/* Profile Trigger: Simple, Elegant Outline Profile Icon */}
+      {/* Profile Trigger Button */}
       <button
-        id="profile-menu-toggle"
+        id="profile-dropdown-trigger"
+        type="button"
         onClick={() => {
-          setIsOpen((prev) => !prev);
-          setShowCustomerLoginForm(false);
-          setShowTracker(false);
+          setIsOpen(!isOpen);
+          setShowTrackerView(false);
+          setOrderSearchError('');
         }}
-        className={`relative p-2 rounded-full text-neutral-400 hover:text-white transition-all duration-300 ease-out cursor-pointer flex items-center justify-center focus:outline-hidden ${
-          isOpen ? 'text-white bg-white/[0.04]' : 'hover:bg-white/[0.04]'
-        }`}
-        aria-label="Guest Inquiries & Details"
-        title="Guest Inquiries & Details"
+        className="w-8 h-8 rounded-[2px] border border-white/10 hover:border-white/25 text-neutral-400 hover:text-white bg-transparent hover:bg-white/[0.04] transition-all duration-300 cursor-pointer focus:outline-hidden flex items-center justify-center select-none"
+        aria-label="Chaayé Khana Guest & Staff Menu"
+        title="Order Tracker & Location"
       >
-        <User className="w-[18px] h-[18px] stroke-[1.6] transition-transform duration-300 group-hover:scale-105" />
-        
-        {/* Subtle dot indicator if logged in */}
-        {isCustomerLoggedIn && (
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-amber-500 animate-pulse border border-[#030304]" />
-        )}
+        <Package className="w-3.5 h-3.5 stroke-[1.75]" />
       </button>
 
-      {/* Luxury Minimal Dropdown Menu */}
+      {/* DROPDOWN LUXURY POPUP PANEL */}
       {isOpen && (
         <div
           id="profile-dropdown-panel"
-          className="absolute right-0 top-full mt-3 w-64 rounded-2xl bg-[#0a0a0c]/98 border border-neutral-800/80 backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.85)] py-2.5 z-50 transition-all duration-200 text-white animate-fadeIn"
+          className="absolute right-0 top-full mt-3 w-80 sm:w-88 rounded-[2px] border border-white/10 bg-[#09090b]/95 backdrop-blur-xl shadow-2xl py-4 px-4 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
         >
-          {/* Header Status */}
-          <div className="px-4 py-2 border-b border-neutral-800/60 mb-1.5">
-            <span className="text-[9px] font-semibold tracking-[0.25em] uppercase text-amber-500/90 block">
-              {isCustomerLoggedIn 
-                ? 'CUSTOMER PROFILE' 
-                : 'GUEST SERVICES'}
-            </span>
-            {isAdminContext ? (
-              <div className="mt-1.5 px-2.5 py-1.5 rounded-lg bg-neutral-900 border border-neutral-800 text-[11px] font-sans">
-                <span className="text-[9px] font-semibold text-neutral-500 uppercase tracking-wider block">ASSIGNED BRANCH</span>
-                <span className="text-neutral-200 font-light truncate block mt-0.5">
-                  {selectedBranch ? `${selectedBranch.area} — ${selectedBranch.city}` : 'DHA Phase 4 — Rawalpindi'}
+          {showTrackerView && trackedOrder ? (
+            /* ========================================================= */
+            /* 1. RESTRICTED GUEST ORDER TRACKING VIEW */
+            /* ========================================================= */
+            <div className="space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
+                <button
+                  type="button"
+                  onClick={() => setShowTrackerView(false)}
+                  className="text-xs text-neutral-400 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  <span>Back</span>
+                </button>
+                <span className="text-[11px] font-mono text-emerald-400 uppercase tracking-widest font-medium">
+                  {trackedOrder.status}
                 </span>
               </div>
-            ) : (
-              <p className="text-xs font-medium text-neutral-200 mt-0.5 truncate">
-                {isCustomerLoggedIn 
-                  ? customerIdentifier 
-                  : `${activeBranch.area} • ${activeBranch.city}`}
-              </p>
-            )}
-          </div>
 
-          <div className="px-1.5 space-y-0.5 text-xs">
-            {/* INLINE CUSTOMER LOGIN FORM PANEL */}
-            {showCustomerLoginForm ? (
-              <form onSubmit={handleCustomerLoginSubmit} className="p-3 space-y-3 animate-fadeIn">
-                <button
-                  type="button"
-                  onClick={() => setShowCustomerLoginForm(false)}
-                  className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-neutral-500 hover:text-white transition-colors cursor-pointer mb-1"
-                >
-                  <ArrowLeft className="w-3 h-3" />
-                  <span>Back</span>
-                </button>
-                <div className="space-y-1.5">
-                  <label className="block text-[10px] uppercase tracking-wider text-neutral-400 font-medium">
-                    Email or Phone
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={customerEmailOrPhone}
-                    onChange={(e) => setCustomerEmailOrPhone(e.target.value)}
-                    placeholder="Enter email or phone..."
-                    className="w-full px-2.5 py-2 rounded-lg bg-neutral-900 border border-neutral-800 text-white text-xs focus:outline-hidden focus:border-amber-500/80 focus:bg-black transition-all font-sans font-light"
-                    autoFocus
-                  />
+              <div>
+                <div className="flex justify-between items-start mb-1">
+                  <span className="text-xs text-white font-medium">Order #{trackedOrder.id}</span>
+                  <span className="text-xs text-neutral-400">
+                    PKR {trackedOrder.total.toLocaleString()}
+                  </span>
                 </div>
-                {loginError && (
-                  <p className="text-[10px] text-rose-400 font-light">{loginError}</p>
-                )}
-                <button
-                  type="submit"
-                  className="w-full py-2 rounded-lg bg-white text-black font-semibold text-xs tracking-wider uppercase hover:bg-neutral-200 active:scale-[0.98] transition-all cursor-pointer"
-                >
-                  Confirm Login
-                </button>
-              </form>
-            ) : showTracker ? (
-              /* INLINE CUSTOM FLOW: SIMULATED ORDER TRACKER PANEL */
-              <div className="p-3 space-y-3.5 animate-fadeIn text-left">
-                <button
-                  type="button"
-                  onClick={() => setShowTracker(false)}
-                  className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-neutral-500 hover:text-white transition-colors cursor-pointer mb-1"
-                >
-                  <ArrowLeft className="w-3 h-3" />
-                  <span>Back</span>
-                </button>
-                
-                <div className="border-l-2 border-amber-500/80 pl-3 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono text-neutral-400">ORDER #CK-4921</span>
-                    <span className="text-[10px] font-medium tracking-wide text-amber-500 uppercase">Preparing</span>
-                  </div>
-                  <h4 className="font-medium text-xs text-neutral-200">Karak Chai &amp; Flaky Croissant</h4>
-                  <div className="w-full bg-neutral-900 h-1 rounded-full overflow-hidden">
-                    <div className="bg-amber-500 h-full w-2/3 rounded-full animate-pulse" />
-                  </div>
-                  <p className="text-[10px] text-neutral-400 font-light">
-                    Freshly brewing tea. Approx. 6 mins remaining.
-                  </p>
-                </div>
+                <p className="text-[11px] text-neutral-400">
+                  {new Date(trackedOrder.createdAt || Date.now()).toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })} • {trackedOrder.orderType.toUpperCase()}
+                </p>
+              </div>
 
-                <div className="bg-neutral-950/60 p-2 border border-neutral-800/40 rounded-lg space-y-1">
-                  <span className="text-[9px] font-semibold text-neutral-500 block uppercase tracking-wider">DELIVERY TO</span>
-                  <p className="text-[10px] text-neutral-300 font-light line-clamp-1">{activeBranch.address}</p>
+              <div className="bg-white/[0.03] p-3 rounded-[2px] border border-white/[0.05] space-y-2">
+                <span className="text-[10px] text-neutral-400 uppercase tracking-wider block">
+                  Items ({trackedOrder.items.length})
+                </span>
+                <div className="max-h-32 overflow-y-auto space-y-1.5 text-xs text-neutral-300 pr-1">
+                  {trackedOrder.items.map((it, idx) => (
+                    <div key={idx} className="flex justify-between text-[12px]">
+                      <span>
+                        {it.quantity}x {it.menuItem?.name || 'Item'}
+                      </span>
+                      <span className="text-neutral-400 font-mono">
+                        PKR {it.totalPrice?.toLocaleString() || it.unitPrice?.toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ) : (
-              /* STANDARD MENU OPTIONS LIST */
-              <>
-                {/* 1. Customer Login -> customer access (only visible if not already logged in as customer) */}
-                {!isCustomerLoggedIn && (
-                  <button
-                    id="dropdown-customer-login"
-                    onClick={() => setShowCustomerLoginForm(true)}
-                    className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-neutral-300 hover:text-white hover:bg-white/[0.05] transition-all duration-200 cursor-pointer group"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <User className="w-3.5 h-3.5 text-neutral-400 group-hover:text-white transition-colors" />
-                      <span className="text-xs tracking-wide">Customer Login</span>
-                    </div>
-                    <ChevronRight className="w-3 h-3 text-neutral-500 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
-                  </button>
-                )}
 
-                {/* 2. Admin Login -> admin access (only through Profile dropdown on public website) */}
-                {!isAdminContext && !isCustomerLoggedIn && (
-                  <button
-                    id="dropdown-admin-login"
-                    onClick={() => {
-                      setIsOpen(false);
-                      navigateTo('/admin');
-                    }}
-                    className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-neutral-300 hover:text-white hover:bg-white/[0.05] transition-all duration-200 cursor-pointer group"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <Shield className="w-3.5 h-3.5 text-neutral-400 group-hover:text-[#C49B66] transition-colors" />
-                      <span className="text-xs tracking-wide">Admin Login</span>
-                    </div>
-                    <ChevronRight className="w-3 h-3 text-neutral-500 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
-                  </button>
-                )}
-
-                {/* 4. Track your order -> customers only */}
-                {isCustomerLoggedIn && (
-                  <button
-                    id="dropdown-track-order"
-                    onClick={() => {
-                      setShowTracker(true);
-                    }}
-                    className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-neutral-300 hover:text-white hover:bg-neutral-800/60 transition-all duration-200 cursor-pointer group"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <Package className="w-3.5 h-3.5 text-neutral-400 group-hover:text-white transition-colors" />
-                      <span>Track your order</span>
-                    </div>
-                    <ChevronRight className="w-3 h-3 text-neutral-400 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
-                  </button>
-                )}
-
-                {/* 5. Logout Customer -> customer only */}
-                {isCustomerLoggedIn && (
-                  <button
-                    id="dropdown-customer-logout"
-                    onClick={handleCustomerLogout}
-                    className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-950/25 transition-all duration-200 cursor-pointer group"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <LogOut className="w-3.5 h-3.5 text-rose-400/80 group-hover:text-rose-300 transition-colors" />
-                      <span>Logout Customer</span>
-                    </div>
-                    <ChevronRight className="w-3 h-3 text-rose-400 group-hover:text-rose-300 group-hover:translate-x-0.5 transition-all" />
-                  </button>
-                )}
-
-                {/* Timings & Direct Phone */}
-                <div className="pt-2.5 mt-2 border-t border-neutral-800/60 px-3.5 py-1.5 space-y-1.5 text-[11px] text-neutral-400 text-left">
-                  {isAdminContext && selectedBranch ? (
-                    <div className="space-y-1.5 mb-1 text-neutral-500 font-light text-[10.5px]">
-                      <p className="flex items-start gap-2">
-                        <MapPin className="w-3 h-3 text-neutral-600 shrink-0 mt-0.5" />
-                        <span className="line-clamp-2">{selectedBranch.address}</span>
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-1.5 mb-1 text-neutral-500 font-light text-[10.5px]">
-                      <p className="flex items-start gap-2">
-                        <MapPin className="w-3 h-3 text-neutral-600 shrink-0 mt-0.5" />
-                        <span className="line-clamp-2">{activeBranch.address}</span>
-                      </p>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-3 h-3 text-neutral-500 shrink-0" />
-                    <span>{isAdminContext && selectedBranch ? selectedBranch.openingHours : activeBranch.openingHours}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Phone className="w-3 h-3 text-neutral-500 shrink-0" />
-                    <a
-                      href={`tel:${isAdminContext && selectedBranch ? selectedBranch.phone : activeBranch.phone}`}
-                      className="text-neutral-300 hover:text-white transition-colors"
-                    >
-                      {isAdminContext && selectedBranch ? selectedBranch.phone : activeBranch.phone}
-                    </a>
-                  </div>
+              {trackedOrder.deliveryAddress && (
+                <div className="text-[11px] text-neutral-400 flex items-start gap-2">
+                  <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5 text-neutral-400" />
+                  <span>{trackedOrder.deliveryAddress}</span>
                 </div>
-              </>
-            )}
-          </div>
+              )}
+            </div>
+          ) : (
+            /* ========================================================= */
+            /* 2. MAIN SINGLE-LOCATION GUEST & STAFF QUICK ACTIONS */
+            /* ========================================================= */
+            <div className="space-y-4">
+              {/* Cafe Location Header */}
+              <div className="pb-3 border-b border-white/[0.08]">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-xs font-serif uppercase tracking-widest text-white">
+                    {cafeSettings.cafeName || activeBranch.name}
+                  </span>
+                </div>
+                <p className="text-[11px] text-neutral-400 leading-snug">
+                  {cafeSettings.address || activeBranch.address}
+                </p>
+              </div>
+
+              {/* Live Order Lookup Form */}
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-medium block">
+                  TRACK LIVE ORDER
+                </span>
+                <form onSubmit={handleSearchOrder} className="flex gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      placeholder="e.g. ORD-123456"
+                      value={orderQuery}
+                      onChange={(e) => setOrderQuery(e.target.value)}
+                      className="w-full bg-white/[0.04] border border-white/10 rounded-[2px] px-2.5 py-1.5 text-xs text-white placeholder:text-neutral-400 focus:outline-hidden focus:border-white/30"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={isSearchingOrder}
+                    className="px-3 py-1.5 bg-white text-black text-xs font-medium rounded-[2px] hover:bg-neutral-200 transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    {isSearchingOrder ? '...' : 'Track'}
+                  </button>
+                </form>
+                {orderSearchError && (
+                  <p className="text-[11px] text-rose-400">{orderSearchError}</p>
+                )}
+              </div>
+
+              {/* Cafe Operating Contact Details */}
+              <div className="space-y-2 pt-2 border-t border-white/[0.06] text-xs text-neutral-400">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                  <span>{cafeSettings.openingHoursDisplay || activeBranch.openingHours}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Phone className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                  <a
+                    href={`tel:${cafeSettings.phone || activeBranch.phone}`}
+                    className="hover:text-white transition-colors"
+                  >
+                    {cafeSettings.phone || activeBranch.phone}
+                  </a>
+                </div>
+              </div>
+
+              {/* Staff / Admin Portal Link */}
+              <div className="pt-3 border-t border-white/[0.08]">
+                <button
+                  type="button"
+                  id="dropdown-staff-portal-btn"
+                  onClick={() => {
+                    setIsOpen(false);
+                    navigateTo('/admin');
+                  }}
+                  className="w-full flex items-center justify-between px-3 py-2 bg-white/[0.03] hover:bg-white/[0.07] border border-white/[0.08] rounded-[2px] text-xs text-neutral-300 hover:text-white transition-colors cursor-pointer"
+                >
+                  <span className="flex items-center gap-2">
+                    <Shield className="w-3.5 h-3.5 text-neutral-400" />
+                    <span>Staff / Admin Portal</span>
+                  </span>
+                  <span className="text-[10px] uppercase font-mono text-neutral-400">/admin</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

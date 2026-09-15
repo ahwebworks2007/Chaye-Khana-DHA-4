@@ -98,6 +98,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
   const [currentPasswordInput, setCurrentPasswordInput] = useState('');
   const [newPasswordInput, setNewPasswordInput] = useState('');
   const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordChangeError, setPasswordChangeError] = useState('');
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
@@ -2044,43 +2047,88 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                   <label className="block font-semibold text-stone-300 mb-1.5">
                     Current Password <span className="text-amber-400">*</span>
                   </label>
-                  <input
-                    type="password"
-                    required
-                    value={currentPasswordInput}
-                    onChange={(e) => setCurrentPasswordInput(e.target.value)}
-                    placeholder="Enter current password"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-800 bg-stone-950 text-stone-100 text-sm font-mono focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 outline-none transition-all placeholder:text-stone-600 placeholder:font-sans"
-                    autoFocus
-                  />
+                  <div className="relative">
+                    <input
+                      type={showCurrentPassword ? 'text' : 'password'}
+                      required
+                      value={currentPasswordInput}
+                      onChange={(e) => setCurrentPasswordInput(e.target.value)}
+                      placeholder="Enter current password"
+                      className="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-stone-800 bg-stone-950 text-stone-100 text-sm font-mono focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 outline-none transition-all placeholder:text-stone-600 placeholder:font-sans"
+                      autoFocus
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-stone-500 hover:text-amber-400 focus:outline-none transition-colors cursor-pointer"
+                      title={showCurrentPassword ? 'Hide password' : 'Show password'}
+                      aria-label={showCurrentPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showCurrentPassword ? (
+                        <EyeOff className="w-4 h-4 stroke-[1.8]" />
+                      ) : (
+                        <Eye className="w-4 h-4 stroke-[1.8]" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 <div>
                   <label className="block font-semibold text-stone-300 mb-1.5">
                     New Password <span className="text-amber-400">*</span>
                   </label>
-                  <input
-                    type="password"
-                    required
-                    value={newPasswordInput}
-                    onChange={(e) => setNewPasswordInput(e.target.value)}
-                    placeholder="Enter new password"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-800 bg-stone-950 text-stone-100 text-sm font-mono focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 outline-none transition-all placeholder:text-stone-600 placeholder:font-sans"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showNewPassword ? 'text' : 'password'}
+                      required
+                      value={newPasswordInput}
+                      onChange={(e) => setNewPasswordInput(e.target.value)}
+                      placeholder="Enter new password (min 8 chars)"
+                      className="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-stone-800 bg-stone-950 text-stone-100 text-sm font-mono focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 outline-none transition-all placeholder:text-stone-600 placeholder:font-sans"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-stone-500 hover:text-amber-400 focus:outline-none transition-colors cursor-pointer"
+                      title={showNewPassword ? 'Hide password' : 'Show password'}
+                      aria-label={showNewPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showNewPassword ? (
+                        <EyeOff className="w-4 h-4 stroke-[1.8]" />
+                      ) : (
+                        <Eye className="w-4 h-4 stroke-[1.8]" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 <div>
                   <label className="block font-semibold text-stone-300 mb-1.5">
                     Confirm New Password <span className="text-amber-400">*</span>
                   </label>
-                  <input
-                    type="password"
-                    required
-                    value={confirmPasswordInput}
-                    onChange={(e) => setConfirmPasswordInput(e.target.value)}
-                    placeholder="Confirm new password"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-stone-800 bg-stone-950 text-stone-100 text-sm font-mono focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 outline-none transition-all placeholder:text-stone-600 placeholder:font-sans"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      required
+                      value={confirmPasswordInput}
+                      onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                      placeholder="Confirm new password"
+                      className="w-full pl-3.5 pr-10 py-2.5 rounded-xl border border-stone-800 bg-stone-950 text-stone-100 text-sm font-mono focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 outline-none transition-all placeholder:text-stone-600 placeholder:font-sans"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-stone-500 hover:text-amber-400 focus:outline-none transition-colors cursor-pointer"
+                      title={showConfirmPassword ? 'Hide password' : 'Show password'}
+                      aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="w-4 h-4 stroke-[1.8]" />
+                      ) : (
+                        <Eye className="w-4 h-4 stroke-[1.8]" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 <div className="pt-3 border-t border-stone-800 flex items-center justify-end gap-2">

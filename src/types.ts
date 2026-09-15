@@ -148,8 +148,10 @@ export interface CustomerOrder {
   total: number;
   status: OrderStatus;
   createdAt: string; // ISO string
-  estimatedPreparationTimeMins: number;
-  expectedTimeDisplay: string; // e.g. "7:45 PM"
+  createdAtTimestamp?: number;
+  paymentMethod?: string;
+  estimatedPreparationTimeMins?: number;
+  expectedTimeDisplay?: string; // e.g. "7:45 PM"
 
   // Delivery-specific
   deliveryAddress?: string;

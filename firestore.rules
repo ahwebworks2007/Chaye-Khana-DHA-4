@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Menu Categories: Public Read, Write handled securely by backend/admin
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Menu Items: Public Read, Write handled securely by backend/admin
+    match /menu_items/{itemId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Cafe & Delivery Settings: Public Read, Write handled securely by backend/admin
+    match /cafe_settings/{settingId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Orders: Public Read by ID for guest tracking, creation allowed with valid structure, updates/deletions restricted
+    match /orders/{orderId} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasAll(['id', 'customerName', 'customerPhone', 'items', 'total', 'status'])
+                    && request.resource.data.status == 'New';
+      allow update, delete: if false;
+    }
+
+    // Admin Credentials: Completely private / server-only
+    match /admin_users/{userId} {
+      allow read, write: if false;
+    }
+  }
+}

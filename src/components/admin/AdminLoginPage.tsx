@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Lock, AlertCircle, ArrowLeft, ShieldCheck, KeyRound } from 'lucide-react';
+import { Lock, AlertCircle, ArrowLeft, ShieldCheck, Eye, EyeOff } from 'lucide-react';
 import { useCafe } from '../../context/CafeContext';
 
 interface AdminLoginPageProps {
@@ -9,6 +9,7 @@ interface AdminLoginPageProps {
 export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onNavigate }) => {
   const { isAdminAuthenticated, loginAdmin } = useCafe();
   const [passwordInput, setPasswordInput] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -100,15 +101,29 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onNavigate }) =>
               </label>
               <div className="relative">
                 <input
-                  type="password"
+                  id="admin-password-input"
+                  type={showPassword ? 'text' : 'password'}
                   required
                   autoFocus
                   value={passwordInput}
                   onChange={(e) => setPasswordInput(e.target.value)}
                   placeholder="Enter administrator password"
-                  className="w-full px-4 py-3.5 rounded-xl bg-[#030304] border border-neutral-800 text-white text-sm font-mono placeholder:font-sans placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500/80 transition-all"
+                  className="w-full pl-4 pr-11 py-3.5 rounded-xl bg-[#030304] border border-neutral-800 text-white text-sm font-mono placeholder:font-sans placeholder:text-neutral-600 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500/80 transition-all"
                 />
-                <KeyRound className="w-4 h-4 text-neutral-600 absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <button
+                  type="button"
+                  id="toggle-admin-password-visibility"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-neutral-500 hover:text-amber-400 focus:outline-none transition-colors cursor-pointer"
+                  title={showPassword ? 'Hide password' : 'Show password'}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4 stroke-[1.8]" />
+                  ) : (
+                    <Eye className="w-4 h-4 stroke-[1.8]" />
+                  )}
+                </button>
               </div>
             </div>
 

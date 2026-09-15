@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   Menu as MenuIcon,
   X,
-  Sun,
-  Moon,
 } from 'lucide-react';
 import { useCafe } from '../context/CafeContext';
 import { ProfileDropdown } from './ProfileDropdown';
@@ -13,8 +11,6 @@ export const Navbar: React.FC = () => {
     currentView,
     setCurrentView,
     cafeSettings,
-    theme,
-    toggleTheme,
   } = useCafe();
 
   const [isScrolled, setIsScrolled] = useState(false);
@@ -45,7 +41,7 @@ export const Navbar: React.FC = () => {
   }, [mobileMenuOpen]);
 
   // Navigation click handler
-  const handleNavClick = (view: 'home' | 'menu' | 'about' | 'contact' | 'gallery' | 'branches') => {
+  const handleNavClick = (view: 'home' | 'menu' | 'about' | 'contact' | 'gallery') => {
     setMobileMenuOpen(false);
 
     if (view === 'gallery') {
@@ -74,14 +70,13 @@ export const Navbar: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Essential navigation links configuration
+  // Essential single-location navigation links
   const navLinks = [
     { label: 'Home', id: 'home', action: () => handleNavClick('home'), isActive: currentView === 'home' },
     { label: 'Menu', id: 'menu', action: () => handleNavClick('menu'), isActive: currentView === 'menu' },
     { label: 'Our Story', id: 'about', action: () => handleNavClick('about'), isActive: currentView === 'about' },
     { label: 'Gallery', id: 'gallery', action: () => handleNavClick('gallery'), isActive: false },
     { label: 'Visit Us', id: 'contact', action: () => handleNavClick('contact'), isActive: currentView === 'contact' },
-    { label: 'Branches', id: 'branches', action: () => handleNavClick('branches'), isActive: currentView === 'branches' },
   ];
 
   return (
@@ -151,23 +146,7 @@ export const Navbar: React.FC = () => {
 
             {/* RIGHT: Essential Utility Controls */}
             <div className="flex-1 flex items-center justify-end gap-3 sm:gap-4">
-              {/* Discreet Day/Night Theme Toggle */}
-              <button
-                id="theme-toggle-btn"
-                type="button"
-                onClick={toggleTheme}
-                className="w-8 h-8 rounded-[2px] border border-white/10 hover:border-white/25 text-neutral-400 hover:text-white bg-transparent hover:bg-white/[0.04] transition-all duration-300 cursor-pointer focus:outline-hidden flex items-center justify-center select-none"
-                aria-label={theme === 'dark' ? 'Switch to warm light theme' : 'Switch to dark theme'}
-                title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-              >
-                {theme === 'dark' ? (
-                  <Sun className="w-3.5 h-3.5 transition-transform duration-300 hover:rotate-45" />
-                ) : (
-                  <Moon className="w-3.5 h-3.5 transition-transform duration-300 hover:-rotate-12" />
-                )}
-              </button>
-
-              {/* Profile Dropdown */}
+              {/* Profile / Order Tracker & Staff Dropdown */}
               <ProfileDropdown />
 
               {/* Mobile Hamburger Toggle (hidden on desktop) */}

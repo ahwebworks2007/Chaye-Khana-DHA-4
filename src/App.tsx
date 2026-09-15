@@ -4,7 +4,6 @@ import { AdminDashboard } from './components/admin/AdminDashboard';
 import { AdminLoginPage } from './components/admin/AdminLoginPage';
 import { BrandLoader } from './components/BrandLoader';
 import { ContactSection } from './components/ContactSection';
-import { BranchesSection } from './components/BranchesSection';
 import { Footer } from './components/Footer';
 import { HeroSection } from './components/HeroSection';
 import { ItemModal } from './components/ItemModal';
@@ -29,15 +28,12 @@ const AppRouter: React.FC = () => {
       const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
       const viewParam = params?.get('view');
 
-      // Synchronize SPA view if navigation occurred via direct URL or browser history
       if (viewParam === 'menu' || path === '/menu') {
         setCurrentView('menu');
       } else if (viewParam === 'about' || path === '/about') {
         setCurrentView('about');
-      } else if (viewParam === 'contact' || path === '/contact') {
+      } else if (viewParam === 'contact' || path === '/contact' || path === '/branches') {
         setCurrentView('contact');
-      } else if (viewParam === 'branches' || path === '/branches') {
-        setCurrentView('branches');
       } else if (viewParam === 'gallery' || path === '/gallery') {
         setCurrentView('home');
         setTimeout(() => {
@@ -55,7 +51,6 @@ const AppRouter: React.FC = () => {
       }
     };
 
-    // Run on initial mount
     handleLocationChange();
 
     window.addEventListener('popstate', handleLocationChange);
@@ -72,7 +67,7 @@ const AppRouter: React.FC = () => {
     setCurrentPath(getNormalizedPath());
   };
 
-  // Route 2: Protected Admin Dashboard (/admin)
+  // Protected Admin Dashboard (/admin)
   if (currentPath.startsWith('/admin')) {
     if (!isAdminAuthenticated) {
       return (
@@ -108,13 +103,13 @@ const AppRouter: React.FC = () => {
     );
   }
 
-  // Route 3: Public Chaayé Khana Restaurant Website (/)
+  // Public Chaayé Khana Restaurant Website (/)
   return (
     <div className="min-h-screen flex flex-col bg-[#030304] text-white font-sans selection:bg-neutral-800 selection:text-white">
       {/* Subtle Film Grain Texture Overlay */}
       <div className="film-grain" aria-hidden="true" />
 
-      {/* Minimal Branded Loading Screen (fades out gracefully on mount) */}
+      {/* Minimal Branded Loading Screen */}
       <BrandLoader />
 
       {/* Dynamic SEO Meta & Head Management */}
@@ -128,19 +123,13 @@ const AppRouter: React.FC = () => {
         {currentView === 'home' && (
           <>
             <HeroSection />
-            <BranchesSection />
             <FAQSection />
           </>
         )}
         {currentView === 'menu' && <MenuSection />}
         {currentView === 'about' && <AboutSection />}
         {currentView === 'contact' && <ContactSection />}
-        {currentView === 'branches' && (
-          <>
-            <BranchesSection />
-            <FAQSection />
-          </>
-        )}
+        {currentView === 'branches' && <ContactSection />}
       </main>
 
       {/* Persistent Footer */}
@@ -157,10 +146,12 @@ const AppRouter: React.FC = () => {
   );
 };
 
-export default function App() {
+export const App: React.FC = () => {
   return (
     <CafeProvider>
       <AppRouter />
     </CafeProvider>
   );
-}
+};
+
+export default App;
