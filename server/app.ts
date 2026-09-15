@@ -36,11 +36,11 @@ export function createExpressApp(): Express {
   // ==========================================
   // 2. Authentication Endpoints (Server-Enforced)
   // ==========================================
-  app.post('/api/auth/login', async (req, res) => {
+  const handleLogin = async (req: express.Request, res: express.Response) => {
     let { email, password } = req.body || {};
-    // Single-branch setup: if email is omitted, automatically target DHA-4 admin
-    if (!email && password) {
-      email = 'dha4@example.com';
+    // If email is omitted or generic, target primary admin account
+    if (!email || email.trim() === 'admin') {
+      email = 'admin@chaayekhana.com';
     }
 
     if (!password) {
@@ -66,16 +66,22 @@ export function createExpressApp(): Express {
       token: authResult.token,
       user: authResult.user,
     });
-  });
+  };
 
-  app.get('/api/auth/me', requireAuth, (req: AuthenticatedRequest, res) => {
+  app.post('/api/auth/login', handleLogin);
+  app.post('/auth/login', handleLogin);
+
+  const handleMe = (req: AuthenticatedRequest, res: express.Response) => {
     return res.json({
       authenticated: true,
       user: req.user,
     });
-  });
+  };
 
-  app.post('/api/auth/logout', (req, res) => {
+  app.get('/api/auth/me', requireAuth, handleMe);
+  app.get('/auth/me', requireAuth, handleMe);
+
+  const handleLogout = (req: express.Request, res: express.Response) => {
     // Clear HTTP-only cookie
     res.clearCookie('ck_auth_token', {
       httpOnly: true,
@@ -84,9 +90,12 @@ export function createExpressApp(): Express {
       path: '/',
     });
     return res.json({ success: true, message: 'Logged out successfully.' });
-  });
+  };
 
-  app.post('/api/auth/change-password', requireAuth, async (req: AuthenticatedRequest, res) => {
+  app.post('/api/auth/logout', handleLogout);
+  app.post('/auth/logout', handleLogout);
+
+  const handleChangePassword = async (req: AuthenticatedRequest, res: express.Response) => {
     const { currentPassword, newPassword } = req.body || {};
     if (!currentPassword || !newPassword) {
       return res.status(400).json({ error: 'Both current and new passwords are required.' });
@@ -98,7 +107,10 @@ export function createExpressApp(): Express {
     }
 
     return res.json({ success: true, message: 'Password updated successfully.' });
-  });
+  };
+
+  app.post('/api/auth/change-password', requireAuth, handleChangePassword);
+  app.post('/auth/change-password', requireAuth, handleChangePassword);
 
   // ==========================================
   // 3. Public Storefront Branch Data Endpoint

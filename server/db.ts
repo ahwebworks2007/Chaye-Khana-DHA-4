@@ -468,11 +468,14 @@ export async function updateDbUserPassword(
       inMemoryUsers[email].salt = newSalt;
       inMemoryUsers[email].passwordHash = newPasswordHash;
       found = true;
-      break;
     }
   }
   if (found) {
-    saveLocalUsers();
+    try {
+      saveLocalUsers();
+    } catch {
+      // Ephemeral filesystem fallback
+    }
   }
 
   if (pgPool) {
@@ -485,7 +488,7 @@ export async function updateDbUserPassword(
         return true;
       }
     } catch (err) {
-      console.error('[Database] PG update password error:', err);
+      console.error('[Database] Failed to update user password in PostgreSQL:', err);
     }
   }
 
