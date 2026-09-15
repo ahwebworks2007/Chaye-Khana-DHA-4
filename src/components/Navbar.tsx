@@ -32,8 +32,6 @@ export const Navbar: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-
-
   // Prevent background scrolling when mobile overlay is active
   useEffect(() => {
     if (mobileMenuOpen) {
@@ -53,7 +51,6 @@ export const Navbar: React.FC = () => {
     if (view === 'gallery') {
       if (currentView !== 'home') {
         setCurrentView('home');
-        // Allow time for home view to render before scrolling to gallery
         setTimeout(() => {
           const galleryEl = document.getElementById('gallery-section');
           if (galleryEl) {
@@ -77,7 +74,7 @@ export const Navbar: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // Nav links configuration
+  // Essential navigation links configuration
   const navLinks = [
     { label: 'Home', id: 'home', action: () => handleNavClick('home'), isActive: currentView === 'home' },
     { label: 'Menu', id: 'menu', action: () => handleNavClick('menu'), isActive: currentView === 'menu' },
@@ -92,18 +89,18 @@ export const Navbar: React.FC = () => {
       <header
         className={`sticky top-0 z-50 w-full transition-all duration-300 ease-out select-none ${
           isScrolled
-            ? 'bg-[#030304]/90 backdrop-blur-md border-b border-white/[0.08] py-3.5 shadow-[0_10px_30px_rgba(0,0,0,0.8)]'
-            : 'bg-black/30 backdrop-blur-xs border-b border-white/[0.05] py-5'
+            ? 'bg-[#030304]/95 backdrop-blur-md border-b border-white/[0.08] py-3.5'
+            : 'bg-transparent border-b border-white/[0.05] py-5'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 w-full">
-          <div className="flex items-center justify-between h-auto">
-            {/* LEFT: Logo Wordmark */}
+        <div className="max-w-[1300px] mx-auto px-6 sm:px-10 lg:px-16 w-full">
+          <div className="flex items-center justify-between">
+            {/* LEFT: Clean Logo Wordmark */}
             <div className="flex-1 flex items-center justify-start">
               <button
                 id="header-logo-btn"
                 onClick={() => handleNavClick('home')}
-                className="group flex items-center gap-3.5 text-left cursor-pointer focus:outline-hidden"
+                className="group flex items-center gap-3 text-left cursor-pointer focus:outline-hidden"
                 aria-label="Chaayé Khana Home"
               >
                 {cafeSettings.logo && (
@@ -111,14 +108,14 @@ export const Navbar: React.FC = () => {
                     src={cafeSettings.logo}
                     alt="Chaayé Khana Logo"
                     referrerPolicy="no-referrer"
-                    className={`object-cover rounded-full border border-white/20 shadow-md transition-all duration-300 ${
-                      isScrolled ? 'w-8 h-8' : 'w-10 h-10'
+                    className={`object-cover rounded-full border border-white/20 transition-all duration-300 ${
+                      isScrolled ? 'w-7 h-7' : 'w-8 h-8'
                     }`}
                   />
                 )}
                 <span
-                  className={`font-serif tracking-[0.28em] text-white font-normal uppercase transition-all duration-300 block ${
-                    isScrolled ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'
+                  className={`font-serif tracking-[0.24em] text-white font-normal uppercase transition-all duration-300 block ${
+                    isScrolled ? 'text-sm sm:text-base' : 'text-base sm:text-lg'
                   }`}
                 >
                   CHAAYÉ KHANA
@@ -126,43 +123,40 @@ export const Navbar: React.FC = () => {
               </button>
             </div>
 
-            {/* CENTER: Desktop Clean Navigation Links */}
-            <nav className="hidden md:flex items-center justify-center gap-7 lg:gap-10">
+            {/* CENTER: Desktop Minimal Navigation Links */}
+            <nav className="hidden md:flex items-center justify-center gap-7 lg:gap-9">
               {navLinks.map((link) => (
                 <button
                   key={link.id}
                   id={`nav-link-${link.id}`}
                   onClick={link.action}
-                  className={`relative py-1.5 text-xs sm:text-[13px] tracking-wider transition-all duration-300 ease-out cursor-pointer group focus:outline-hidden ${
+                  className={`relative py-1 text-xs uppercase tracking-[0.14em] transition-colors duration-200 cursor-pointer focus:outline-hidden ${
                     link.isActive
                       ? 'text-white font-medium'
                       : 'text-neutral-400 hover:text-white font-normal'
                   }`}
                 >
                   <span>{link.label}</span>
-
-                  {/* Smooth Thin Underline */}
+                  {/* Subtle Underline */}
                   <span
-                    className={`absolute bottom-0 left-0 h-[1px] bg-white transition-all duration-300 ease-out ${
+                    className={`absolute -bottom-1 left-0 h-[1px] bg-white transition-all duration-300 ease-out ${
                       link.isActive
                         ? 'w-full opacity-100'
-                        : 'w-0 opacity-0 group-hover:w-full group-hover:opacity-100'
+                        : 'w-0 opacity-0 hover:w-full hover:opacity-100'
                     }`}
                   />
                 </button>
               ))}
             </nav>
 
-            {/* RIGHT: Profile Icon & Mobile Hamburger Toggle */}
+            {/* RIGHT: Essential Utility Controls */}
             <div className="flex-1 flex items-center justify-end gap-3 sm:gap-4">
-
-
               {/* Discreet Day/Night Theme Toggle */}
               <button
                 id="theme-toggle-btn"
                 type="button"
                 onClick={toggleTheme}
-                className="w-8 h-8 rounded-[2px] border border-white/10 hover:border-white/25 text-neutral-400 hover:text-white bg-transparent hover:bg-white/[0.04] transition-all duration-300 cursor-pointer focus:outline-hidden focus-visible:ring-1 focus-visible:ring-current flex items-center justify-center select-none"
+                className="w-8 h-8 rounded-[2px] border border-white/10 hover:border-white/25 text-neutral-400 hover:text-white bg-transparent hover:bg-white/[0.04] transition-all duration-300 cursor-pointer focus:outline-hidden flex items-center justify-center select-none"
                 aria-label={theme === 'dark' ? 'Switch to warm light theme' : 'Switch to dark theme'}
                 title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
               >
@@ -173,20 +167,20 @@ export const Navbar: React.FC = () => {
                 )}
               </button>
 
-              {/* Profile Dropdown Icon */}
+              {/* Profile Dropdown */}
               <ProfileDropdown />
 
               {/* Mobile Hamburger Toggle (hidden on desktop) */}
               <button
                 id="mobile-menu-toggle-btn"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-full text-neutral-400 hover:text-white hover:bg-white/[0.05] transition-colors cursor-pointer focus:outline-hidden"
+                className="md:hidden p-2 text-neutral-400 hover:text-white transition-colors cursor-pointer focus:outline-hidden"
                 aria-label={mobileMenuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
               >
                 {mobileMenuOpen ? (
-                  <X className="w-5 h-5 stroke-[1.6]" />
+                  <X className="w-5 h-5 stroke-[1.5]" />
                 ) : (
-                  <MenuIcon className="w-5 h-5 stroke-[1.6]" />
+                  <MenuIcon className="w-5 h-5 stroke-[1.5]" />
                 )}
               </button>
             </div>
@@ -198,29 +192,20 @@ export const Navbar: React.FC = () => {
       {mobileMenuOpen && (
         <div
           id="mobile-nav-overlay"
-          className="fixed inset-0 z-40 bg-[#030304]/98 backdrop-blur-2xl flex flex-col justify-between pt-24 pb-12 px-8 sm:px-12 md:hidden transition-all duration-300 animate-fadeIn"
+          className="fixed inset-0 z-40 bg-[#030304]/98 backdrop-blur-xl flex flex-col justify-between pt-24 pb-12 px-8 sm:px-12 md:hidden select-none"
         >
-          {/* Subtle Ambient Vignette */}
-          <div
-            className="absolute inset-0 pointer-events-none opacity-30"
-            style={{
-              background: 'radial-gradient(circle at 50% 30%, rgba(40, 34, 28, 0.4) 0%, transparent 70%)',
-            }}
-          />
-
           {/* Navigation Links List */}
-          <div className="relative z-10 flex flex-col space-y-6 sm:space-y-8 my-auto">
-            <span className="text-[10px] uppercase tracking-[0.35em] text-neutral-400 font-medium block mb-2">
-              Navigation
+          <div className="relative z-10 flex flex-col space-y-6 sm:space-y-7 my-auto">
+            <span className="text-[10px] uppercase tracking-[0.32em] text-neutral-400 font-medium block mb-2">
+              NAVIGATION
             </span>
 
-            {navLinks.map((link, idx) => (
+            {navLinks.map((link) => (
               <button
                 key={link.id}
                 id={`mobile-nav-${link.id}`}
                 onClick={link.action}
-                style={{ animationDelay: `${idx * 60}ms` }}
-                className={`text-left text-2xl sm:text-3xl font-serif tracking-tight transition-all duration-300 flex items-center justify-between group cursor-pointer focus:outline-hidden ${
+                className={`text-left text-2xl sm:text-3xl font-serif tracking-tight transition-colors duration-200 flex items-center justify-between cursor-pointer focus:outline-hidden ${
                   link.isActive
                     ? 'text-white italic'
                     : 'text-neutral-400 hover:text-white'
@@ -229,14 +214,14 @@ export const Navbar: React.FC = () => {
                 <span>{link.label}</span>
                 <span
                   className={`h-[1px] bg-white transition-all duration-300 ${
-                    link.isActive ? 'w-8' : 'w-0 group-hover:w-6'
+                    link.isActive ? 'w-8' : 'w-0'
                   }`}
                 />
               </button>
             ))}
           </div>
 
-          {/* Bottom Brand / Location Tagline */}
+          {/* Bottom Brand / Location Note */}
           <div className="relative z-10 pt-8 border-t border-neutral-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-neutral-400 font-light">
             <div>
               <span className="text-white font-medium block">CHAAYÉ KHANA</span>

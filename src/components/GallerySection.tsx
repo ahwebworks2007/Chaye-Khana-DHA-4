@@ -3,112 +3,159 @@ import { motion } from 'motion/react';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import rooftopImage from '../assets/images/chaaye_khana_rooftop_1788985644536.jpg';
 
-interface GalleryItem {
+interface EditorialStoryChapter {
   id: string;
-  theme: string;
-  category: string;
-  caption: string;
-  alt: string;
-  imageUrl: string;
+  chapterNumber: string;
+  chapterTitle: string;
+  subTitle: string;
+  items: {
+    id: string;
+    caption: string;
+    alt: string;
+    imageUrl: string;
+    aspectRatioClass: string;
+  }[];
 }
 
-const GALLERY_ITEMS: GalleryItem[] = [
-  // 01 — FOOD (Dominant large feature image)
+const EDITORIAL_CHAPTERS: EditorialStoryChapter[] = [
+  // 01 — FOOD
   {
-    id: 'gallery-01',
-    theme: '01 — THE TABLE',
-    category: 'MORNING TABLE & CUISINE',
-    caption: 'Freshly prepared artisanal breakfast spread with crusty sourdough, eggs, and condiments.',
-    alt: 'Plated gourmet breakfast spread with sourdough bread, fresh eggs and tea at Chaayé Khana DHA-4',
-    imageUrl: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=1800&q=85',
+    id: 'food',
+    chapterNumber: '01',
+    chapterTitle: 'FOOD',
+    subTitle: 'Culinary craft, morning sourdough and artisanal plating.',
+    items: [
+      {
+        id: 'gallery-food-01',
+        caption: 'Artisanal morning table with freshly baked sourdough, farm eggs and condiments.',
+        alt: 'Plated gourmet breakfast spread with sourdough bread, fresh eggs and tea at Chaayé Khana DHA-4',
+        imageUrl: 'https://images.unsplash.com/photo-1533089860892-a7c6f0a88666?auto=format&fit=crop&w=2000&q=85',
+        aspectRatioClass: 'aspect-[16/10] sm:aspect-[16/9] lg:aspect-[21/10]',
+      },
+      {
+        id: 'gallery-food-02',
+        caption: 'Handcrafted golden flaky pastries and morning bakery selections.',
+        alt: 'Freshly baked artisanal croissants and pastries at Chaayé Khana',
+        imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1200&q=85',
+        aspectRatioClass: 'aspect-[4/3] sm:aspect-[4/3] lg:aspect-[1/1]',
+      },
+    ],
   },
 
-  // 02 — CHAI (The ritual)
+  // 02 — CHAI
   {
-    id: 'gallery-02',
-    theme: '02 — THE RITUAL',
-    category: 'THE ART OF CHAI',
-    caption: 'Signature Karak Chai, simmered slowly and poured with artisanal precision.',
-    alt: 'Authentic rich Karak Chai poured into traditional ceramic teaware with steam at Chaayé Khana',
-    imageUrl: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=1200&q=85',
+    id: 'chai',
+    chapterNumber: '02',
+    chapterTitle: 'CHAI',
+    subTitle: 'Simmered slow in copper kettles with single-estate orthodox leaves.',
+    items: [
+      {
+        id: 'gallery-chai-01',
+        caption: 'Signature Karak Chai poured with artisanal precision into handcrafted teaware.',
+        alt: 'Authentic rich Karak Chai poured into traditional ceramic teaware with steam at Chaayé Khana',
+        imageUrl: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&w=1800&q=85',
+        aspectRatioClass: 'aspect-[16/10] sm:aspect-[21/9] lg:aspect-[24/9]',
+      },
+    ],
   },
 
-  // 03 — FOOD / DETAIL (Bakery & pastries)
+  // 03 — PEOPLE
   {
-    id: 'gallery-03',
-    theme: '02 — THE RITUAL',
-    category: 'BAKERY & SPECIALTIES',
-    caption: 'Handcrafted golden pastries and bakery specialties baked fresh daily.',
-    alt: 'Freshly baked artisanal croissants and pastries at Chaayé Khana',
-    imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=1200&q=85',
+    id: 'people',
+    chapterNumber: '03',
+    chapterTitle: 'PEOPLE',
+    subTitle: 'Unrushed conversations, quiet reading and genuine hospitality.',
+    items: [
+      {
+        id: 'gallery-people-01',
+        caption: 'Shared laughter and authentic moments over tea and comforting food.',
+        alt: 'Guests enjoying tea, conversation, and hospitality at Chaayé Khana DHA-4',
+        imageUrl: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1600&q=85',
+        aspectRatioClass: 'aspect-[16/10] sm:aspect-[16/9] lg:aspect-[18/9]',
+      },
+    ],
   },
 
-  // 04 — INTERIOR / THE ROOM (Cinematic full-width architecture)
+  // 04 — INTERIOR
   {
-    id: 'gallery-04',
-    theme: '03 — THE ROOM',
-    category: 'ARCHITECTURE & AMBIENCE',
-    caption: 'The main dining room — a sanctuary of natural timber, literature, and warm welcoming light.',
-    alt: 'Atmospheric dining hall of Chaayé Khana with timber architecture, bookshelves, and tables',
-    imageUrl: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=2000&q=85',
+    id: 'interior',
+    chapterNumber: '04',
+    chapterTitle: 'INTERIOR',
+    subTitle: 'Natural oak, vintage bookshelves and intimate dining spaces.',
+    items: [
+      {
+        id: 'gallery-interior-01',
+        caption: 'The main hall — a serene haven of natural wood, warm lamplight and curated books.',
+        alt: 'Atmospheric dining hall of Chaayé Khana with timber architecture, bookshelves, and tables',
+        imageUrl: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=2000&q=85',
+        aspectRatioClass: 'aspect-[16/10] sm:aspect-[16/10] lg:aspect-[16/10]',
+      },
+      {
+        id: 'gallery-interior-02',
+        caption: 'The library nook designed for slow contemplation and quiet moments.',
+        alt: 'Library reading nook and vintage bookshelves at Chaayé Khana',
+        imageUrl: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=85',
+        aspectRatioClass: 'aspect-[4/3] sm:aspect-[16/10] lg:aspect-[16/10]',
+      },
+    ],
   },
 
-  // 05 — PEOPLE (Hospitality & connection)
+  // 05 — DETAIL
   {
-    id: 'gallery-05',
-    theme: '04 — THE DETAIL',
-    category: 'PEOPLE & HOSPITALITY',
-    caption: 'Shared stories, quiet laughter, and genuine hospitality around the table.',
-    alt: 'Guests enjoying tea, conversation, and hospitality at Chaayé Khana DHA-4',
-    imageUrl: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1200&q=85',
+    id: 'detail',
+    chapterNumber: '05',
+    chapterTitle: 'DETAIL',
+    subTitle: 'Tactile ceramics, raw textures and the quiet craft of the pour.',
+    items: [
+      {
+        id: 'gallery-detail-01',
+        caption: 'Handcrafted ceramic teacups and mindful brewing details.',
+        alt: 'Close-up detail of handcrafted ceramic teacup and artisanal tea setting',
+        imageUrl: 'https://images.unsplash.com/photo-1577968897966-3d4325b36b61?auto=format&fit=crop&w=1600&q=85',
+        aspectRatioClass: 'aspect-[16/10] sm:aspect-[21/9] lg:aspect-[21/8]',
+      },
+    ],
   },
 
-  // 06 — INTERIOR (Library nook & quiet lounge)
+  // 06 — EVENING
   {
-    id: 'gallery-06',
-    theme: '04 — THE DETAIL',
-    category: 'THE LIBRARY LOUNGE',
-    caption: 'Quiet wooden corners curated for slow reading, thought, and contemplation.',
-    alt: 'Library reading nook and vintage bookshelves at Chaayé Khana',
-    imageUrl: 'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=85',
-  },
-
-  // 07 — DETAIL (Tactile teaware & craftsmanship)
-  {
-    id: 'gallery-07',
-    theme: '04 — THE DETAIL',
-    category: 'TACTILE CRAFTSMANSHIP',
-    caption: 'Hand-thrown ceramic teacups, raw textures, and mindful brewing details.',
-    alt: 'Close-up detail of handcrafted ceramic teacup and artisanal tea setting',
-    imageUrl: 'https://images.unsplash.com/photo-1577968897966-3d4325b36b61?auto=format&fit=crop&w=1200&q=85',
-  },
-
-  // 08 — EVENING (Warm ambient dining room)
-  {
-    id: 'gallery-08',
-    theme: '05 — THE EVENING',
-    category: 'AFTER-DARK MOOD',
-    caption: 'Intimate evening gatherings illuminated by warm ambient lighting and quiet luxury.',
-    alt: 'Atmospheric evening dining ambience with warm lamps at Chaayé Khana DHA-4',
-    imageUrl: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=1600&q=85',
-  },
-
-  // 09 — EVENING (DHA-4 Rooftop & Terrace)
-  {
-    id: 'gallery-09',
-    theme: '05 — THE EVENING',
-    category: 'DHA-4 ROOFTOP TERRACE',
-    caption: 'Open-air rooftop terrace dining under the starlit Rawalpindi evening sky.',
-    alt: 'Chaayé Khana DHA-4 open-air rooftop terrace dining at night with ambient lighting and city views',
-    imageUrl: rooftopImage,
+    id: 'evening',
+    chapterNumber: '06',
+    chapterTitle: 'EVENING',
+    subTitle: 'Open-air terrace dining under the evening sky.',
+    items: [
+      {
+        id: 'gallery-evening-01',
+        caption: 'Intimate evening dining glowing under warm ambient light.',
+        alt: 'Atmospheric evening dining ambience with warm lamps at Chaayé Khana DHA-4',
+        imageUrl: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=1600&q=85',
+        aspectRatioClass: 'aspect-[4/3] sm:aspect-[16/11] lg:aspect-[4/3]',
+      },
+      {
+        id: 'gallery-evening-02',
+        caption: 'The DHA-4 open-air rooftop terrace illuminated for evening gatherings.',
+        alt: 'Chaayé Khana DHA-4 open-air rooftop terrace dining at night with ambient lighting and city views',
+        imageUrl: rooftopImage,
+        aspectRatioClass: 'aspect-[16/10] sm:aspect-[16/10] lg:aspect-[16/11]',
+      },
+    ],
   },
 ];
+
+// Flat list for lightbox navigation
+const ALL_GALLERY_IMAGES = EDITORIAL_CHAPTERS.flatMap((chapter) =>
+  chapter.items.map((item) => ({
+    ...item,
+    chapterNumber: chapter.chapterNumber,
+    chapterTitle: chapter.chapterTitle,
+  }))
+);
 
 export const GallerySection: React.FC = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
   const touchStartXRef = useRef<number | null>(null);
 
-  // Keyboard navigation for Lightbox & body scroll lock
+  // Keyboard navigation & body scroll lock
   useEffect(() => {
     if (selectedImageIndex === null) return;
 
@@ -119,9 +166,9 @@ export const GallerySection: React.FC = () => {
       if (e.key === 'Escape') {
         setSelectedImageIndex(null);
       } else if (e.key === 'ArrowRight') {
-        setSelectedImageIndex((prev) => (prev !== null ? (prev + 1) % GALLERY_ITEMS.length : null));
+        setSelectedImageIndex((prev) => (prev !== null ? (prev + 1) % ALL_GALLERY_IMAGES.length : null));
       } else if (e.key === 'ArrowLeft') {
-        setSelectedImageIndex((prev) => (prev !== null ? (prev - 1 + GALLERY_ITEMS.length) % GALLERY_ITEMS.length : null));
+        setSelectedImageIndex((prev) => (prev !== null ? (prev - 1 + ALL_GALLERY_IMAGES.length) % ALL_GALLERY_IMAGES.length : null));
       }
     };
 
@@ -132,7 +179,7 @@ export const GallerySection: React.FC = () => {
     };
   }, [selectedImageIndex]);
 
-  // Touch handlers for mobile lightbox swipe
+  // Touch handlers for mobile swipe
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartXRef.current = e.touches[0].clientX;
   };
@@ -141,204 +188,300 @@ export const GallerySection: React.FC = () => {
     if (touchStartXRef.current === null || selectedImageIndex === null) return;
     const diffX = e.changedTouches[0].clientX - touchStartXRef.current;
     if (diffX > 50) {
-      // Swiped right -> previous
-      setSelectedImageIndex((prev) => (prev !== null ? (prev - 1 + GALLERY_ITEMS.length) % GALLERY_ITEMS.length : null));
+      setSelectedImageIndex((prev) => (prev !== null ? (prev - 1 + ALL_GALLERY_IMAGES.length) % ALL_GALLERY_IMAGES.length : null));
     } else if (diffX < -50) {
-      // Swiped left -> next
-      setSelectedImageIndex((prev) => (prev !== null ? (prev + 1) % GALLERY_ITEMS.length : null));
+      setSelectedImageIndex((prev) => (prev !== null ? (prev + 1) % ALL_GALLERY_IMAGES.length : null));
     }
     touchStartXRef.current = null;
   };
 
-  // Helper render for individual interactive photo card
-  const renderPhotoCard = (
-    item: GalleryItem,
-    index: number,
-    aspectRatioClass: string,
-    additionalClasses = ''
-  ) => {
-    return (
-      <div
-        role="button"
-        tabIndex={0}
-        aria-label={`View photograph: ${item.caption}`}
-        onClick={() => setSelectedImageIndex(index)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            setSelectedImageIndex(index);
-          }
-        }}
-        className={`group relative overflow-hidden bg-[#09090b] cursor-pointer rounded-[2px] border border-white/[0.07] hover:border-white/25 focus:outline-hidden focus-visible:ring-1 focus-visible:ring-white transition-all duration-500 select-none ${additionalClasses}`}
-      >
-        <div className={`w-full ${aspectRatioClass} overflow-hidden`}>
-          <img
-            src={item.imageUrl}
-            alt={item.alt}
-            loading="lazy"
-            className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.035] motion-reduce:transform-none"
-            referrerPolicy="no-referrer"
-          />
-        </div>
-
-        {/* Subtle dark vignette overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent opacity-50 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-400 pointer-events-none" />
-
-        {/* Minimal caption reveal */}
-        <div className="absolute bottom-0 inset-x-0 p-4 sm:p-6 lg:p-7 z-10 pointer-events-none transition-all duration-400 ease-out transform translate-y-1 sm:translate-y-2 opacity-95 sm:opacity-0 sm:group-hover:opacity-100 sm:group-hover:translate-y-0">
-          <span className="block text-[10px] sm:text-[11px] tracking-[0.24em] uppercase text-neutral-400 font-medium mb-1">
-            {item.category}
-          </span>
-          <p className="font-serif text-white font-normal text-[15px] sm:text-[17px] leading-snug">
-            {item.caption}
-          </p>
-        </div>
-      </div>
-    );
+  const openLightboxById = (id: string) => {
+    const idx = ALL_GALLERY_IMAGES.findIndex((img) => img.id === id);
+    if (idx !== -1) {
+      setSelectedImageIndex(idx);
+    }
   };
 
   return (
     <section
       id="gallery-section"
-      className="scroll-mt-20 sm:scroll-mt-24 relative w-full bg-[#030304] text-white pt-24 sm:pt-32 pb-32 sm:pb-40 border-b border-white/[0.06] overflow-hidden"
+      className="scroll-mt-20 sm:scroll-mt-24 relative w-full bg-[#030304] text-white pt-24 sm:pt-32 lg:pt-40 pb-32 sm:pb-40 border-b border-white/[0.06] overflow-hidden"
     >
-      <div className="max-w-[1320px] mx-auto px-5 sm:px-10 lg:px-14">
+      <div className="max-w-[1300px] mx-auto px-6 sm:px-10 lg:px-16">
         {/* ========================================================================= */}
-        {/* 1. SECTION TITLE & EDITORIAL INTRO */}
+        {/* SECTION HEADER: Visual Editorial Intro */}
         {/* ========================================================================= */}
-        <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-24">
-          <span className="text-[11px] sm:text-[12px] font-medium tracking-[0.28em] uppercase text-neutral-400 block mb-3.5">
+        <div className="text-center max-w-3xl mx-auto mb-20 sm:mb-28">
+          <span className="text-[11px] sm:text-[12px] font-medium tracking-[0.28em] uppercase text-neutral-400 block mb-4">
             OUR GALLERY
           </span>
 
-          <h2 className="font-serif font-normal text-white text-[36px] sm:text-[48px] lg:text-[58px] leading-[1.08] tracking-tight">
-            MOMENTS AT CHAAYÉ KHANA
+          <h2 className="font-serif font-normal text-white text-3xl sm:text-4xl lg:text-5xl leading-[1.08] tracking-tight mb-4">
+            Moments at Chaayé Khana
           </h2>
 
-          <p className="mt-4 sm:mt-5 text-[15px] sm:text-[16.5px] leading-[1.7] text-[#AFAFAF] max-w-[650px] mx-auto font-light">
-            &ldquo;A glimpse into the food, people and moments that make every visit memorable.&rdquo;
+          <p className="text-[15px] sm:text-[16px] lg:text-[17px] leading-relaxed text-[#AFAFAF] max-w-[620px] mx-auto font-light">
+            A visual narrative through food, tea, people, architecture, and quiet evening moments.
           </p>
         </div>
 
         {/* ========================================================================= */}
-        {/* EDITORIAL STORY SEQUENCE: FOOD → CHAI → PEOPLE → INTERIOR → DETAIL → EVENING */}
+        {/* EDITORIAL VISUAL STORY SEQUENCE: FOOD → CHAI → PEOPLE → INTERIOR → DETAIL → EVENING */}
         {/* ========================================================================= */}
-        <div className="space-y-16 sm:space-y-24 lg:space-y-28">
-          {/* ----------------------------------------------------------------------- */}
-          {/* COMPOSITION 01 — LARGE FEATURE IMAGE (Dominant Food) */}
-          {/* ----------------------------------------------------------------------- */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
-            className="space-y-3"
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] sm:text-[11px] font-mono tracking-[0.25em] text-neutral-400 uppercase">
-                01 — THE TABLE
-              </span>
-              <div className="h-[1px] flex-1 bg-white/[0.06]" />
-            </div>
-            {renderPhotoCard(GALLERY_ITEMS[0], 0, 'aspect-[4/3] sm:aspect-[16/9] lg:aspect-[21/9]')}
-          </motion.div>
-
-          {/* ----------------------------------------------------------------------- */}
-          {/* COMPOSITION 02 — TWO SMALLER IMAGES (Chai & Bakery/Food Detail) */}
-          {/* ----------------------------------------------------------------------- */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
-            className="space-y-3"
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] sm:text-[11px] font-mono tracking-[0.25em] text-neutral-400 uppercase">
-                02 — THE RITUAL
-              </span>
-              <div className="h-[1px] flex-1 bg-white/[0.06]" />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-7">
-              {renderPhotoCard(GALLERY_ITEMS[1], 1, 'aspect-[4/3] sm:aspect-[16/11]')}
-              {renderPhotoCard(GALLERY_ITEMS[2], 2, 'aspect-[4/3] sm:aspect-[16/11]')}
-            </div>
-          </motion.div>
-
-          {/* ----------------------------------------------------------------------- */}
-          {/* COMPOSITION 03 — FULL-WIDTH CINEMATIC IMAGE (Interior & Room) */}
-          {/* ----------------------------------------------------------------------- */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
-            className="space-y-3"
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] sm:text-[11px] font-mono tracking-[0.25em] text-neutral-400 uppercase">
-                03 — THE ROOM
-              </span>
-              <div className="h-[1px] flex-1 bg-white/[0.06]" />
-            </div>
-            {renderPhotoCard(GALLERY_ITEMS[3], 3, 'aspect-[16/10] sm:aspect-[21/9] lg:aspect-[24/9]')}
-          </motion.div>
-
-          {/* ----------------------------------------------------------------------- */}
-          {/* COMPOSITION 04 — THREE-IMAGE COMPOSITION (People, Library Interior, Detail) */}
-          {/* ----------------------------------------------------------------------- */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
-            className="space-y-3"
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] sm:text-[11px] font-mono tracking-[0.25em] text-neutral-400 uppercase">
-                04 — THE DETAIL
-              </span>
-              <div className="h-[1px] flex-1 bg-white/[0.06]" />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-6 lg:gap-7">
-              {renderPhotoCard(GALLERY_ITEMS[4], 4, 'aspect-[4/3] sm:aspect-[16/12]')}
-              {renderPhotoCard(GALLERY_ITEMS[5], 5, 'aspect-[4/3] sm:aspect-[16/12]')}
-              {renderPhotoCard(GALLERY_ITEMS[6], 6, 'aspect-[4/3] sm:aspect-[16/12]')}
-            </div>
-          </motion.div>
-
-          {/* ----------------------------------------------------------------------- */}
-          {/* COMPOSITION 05 — LARGE EVENING COMPOSITION (Evening Ambience & DHA-4 Rooftop) */}
-          {/* ----------------------------------------------------------------------- */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.8, ease: [0.21, 0.47, 0.32, 0.98] }}
-            className="space-y-3"
-          >
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] sm:text-[11px] font-mono tracking-[0.25em] text-neutral-400 uppercase">
-                05 — THE EVENING
-              </span>
-              <div className="h-[1px] flex-1 bg-white/[0.06]" />
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-7 items-stretch">
-              {/* Left: Atmospheric Evening Interior (5 cols) */}
-              <div className="lg:col-span-5 flex flex-col">
-                {renderPhotoCard(GALLERY_ITEMS[7], 7, 'aspect-[4/3] sm:aspect-[16/11] lg:aspect-[4/3] h-full')}
+        <div className="space-y-24 sm:space-y-32 lg:space-y-36">
+          {EDITORIAL_CHAPTERS.map((chapter) => (
+            <motion.div
+              key={chapter.id}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{ duration: 0.7, ease: [0.21, 0.47, 0.32, 0.98] }}
+              className="space-y-6 sm:space-y-8"
+            >
+              {/* Chapter Header Line */}
+              <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 border-b border-white/[0.08] pb-4">
+                <div className="flex items-baseline gap-3">
+                  <span className="text-[11px] sm:text-[12px] font-mono tracking-[0.24em] text-neutral-400 uppercase">
+                    {chapter.chapterNumber} —
+                  </span>
+                  <h3 className="font-serif text-xl sm:text-2xl text-white font-normal uppercase tracking-wide">
+                    {chapter.chapterTitle}
+                  </h3>
+                </div>
+                <p className="text-xs sm:text-sm text-neutral-400 font-light max-w-md text-left sm:text-right">
+                  {chapter.subTitle}
+                </p>
               </div>
-              {/* Right: Dominant Rooftop & Terrace (7 cols) */}
-              <div className="lg:col-span-7 flex flex-col">
-                {renderPhotoCard(GALLERY_ITEMS[8], 8, 'aspect-[16/10] sm:aspect-[16/10] lg:aspect-[16/11] h-full')}
-              </div>
-            </div>
-          </motion.div>
+
+              {/* Asymmetric Chapter Image Composition */}
+              {chapter.items.length === 1 ? (
+                /* Single Full-Hero Image */
+                <div
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`View photograph: ${chapter.items[0].caption}`}
+                  onClick={() => openLightboxById(chapter.items[0].id)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      openLightboxById(chapter.items[0].id);
+                    }
+                  }}
+                  className="group relative overflow-hidden bg-neutral-950 cursor-pointer rounded-[2px] border border-white/[0.07] hover:border-white/20 transition-colors duration-500 select-none focus:outline-hidden focus-visible:ring-1 focus-visible:ring-white"
+                >
+                  <div className={`w-full ${chapter.items[0].aspectRatioClass} overflow-hidden`}>
+                    <img
+                      src={chapter.items[0].imageUrl}
+                      alt={chapter.items[0].alt}
+                      loading="lazy"
+                      className="w-full h-full object-cover object-center transition-transform duration-1000 ease-out group-hover:scale-[1.02] motion-reduce:transform-none"
+                      referrerPolicy="no-referrer"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-400 pointer-events-none" />
+                  <div className="absolute bottom-4 left-5 sm:bottom-6 sm:left-8 right-5 sm:right-8 z-10 pointer-events-none">
+                    <p className="text-xs sm:text-sm text-white/90 font-light font-serif">
+                      {chapter.items[0].caption}
+                    </p>
+                  </div>
+                </div>
+              ) : chapter.id === 'food' ? (
+                /* Food: 8 cols large spread + 4 cols culinary detail */
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-stretch">
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View photograph: ${chapter.items[0].caption}`}
+                    onClick={() => openLightboxById(chapter.items[0].id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openLightboxById(chapter.items[0].id);
+                      }
+                    }}
+                    className="lg:col-span-8 group relative overflow-hidden bg-neutral-950 cursor-pointer rounded-[2px] border border-white/[0.07] hover:border-white/20 transition-colors duration-500 select-none focus:outline-hidden focus-visible:ring-1 focus-visible:ring-white"
+                  >
+                    <div className="w-full h-full aspect-[16/10] sm:aspect-[16/9] lg:aspect-auto min-h-[280px] lg:min-h-[420px] overflow-hidden">
+                      <img
+                        src={chapter.items[0].imageUrl}
+                        alt={chapter.items[0].alt}
+                        loading="lazy"
+                        className="w-full h-full object-cover object-center transition-transform duration-1000 ease-out group-hover:scale-[1.02]"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-400 pointer-events-none" />
+                    <div className="absolute bottom-4 left-5 sm:bottom-6 sm:left-8 right-5 z-10 pointer-events-none">
+                      <p className="text-xs sm:text-sm text-white/90 font-light font-serif">
+                        {chapter.items[0].caption}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View photograph: ${chapter.items[1].caption}`}
+                    onClick={() => openLightboxById(chapter.items[1].id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openLightboxById(chapter.items[1].id);
+                      }
+                    }}
+                    className="lg:col-span-4 group relative overflow-hidden bg-neutral-950 cursor-pointer rounded-[2px] border border-white/[0.07] hover:border-white/20 transition-colors duration-500 select-none focus:outline-hidden focus-visible:ring-1 focus-visible:ring-white"
+                  >
+                    <div className="w-full h-full aspect-[4/3] lg:aspect-auto min-h-[240px] lg:min-h-[420px] overflow-hidden">
+                      <img
+                        src={chapter.items[1].imageUrl}
+                        alt={chapter.items[1].alt}
+                        loading="lazy"
+                        className="w-full h-full object-cover object-center transition-transform duration-1000 ease-out group-hover:scale-[1.02]"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-400 pointer-events-none" />
+                    <div className="absolute bottom-4 left-5 sm:bottom-6 sm:left-6 right-5 z-10 pointer-events-none">
+                      <p className="text-xs sm:text-sm text-white/90 font-light font-serif">
+                        {chapter.items[1].caption}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : chapter.id === 'interior' ? (
+                /* Interior: 7 cols main timber dining room + 5 cols library nook */
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-stretch">
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View photograph: ${chapter.items[0].caption}`}
+                    onClick={() => openLightboxById(chapter.items[0].id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openLightboxById(chapter.items[0].id);
+                      }
+                    }}
+                    className="lg:col-span-7 group relative overflow-hidden bg-neutral-950 cursor-pointer rounded-[2px] border border-white/[0.07] hover:border-white/20 transition-colors duration-500 select-none focus:outline-hidden focus-visible:ring-1 focus-visible:ring-white"
+                  >
+                    <div className="w-full h-full aspect-[16/10] sm:aspect-[16/10] min-h-[260px] lg:min-h-[380px] overflow-hidden">
+                      <img
+                        src={chapter.items[0].imageUrl}
+                        alt={chapter.items[0].alt}
+                        loading="lazy"
+                        className="w-full h-full object-cover object-center transition-transform duration-1000 ease-out group-hover:scale-[1.02]"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-400 pointer-events-none" />
+                    <div className="absolute bottom-4 left-5 sm:bottom-6 sm:left-8 right-5 z-10 pointer-events-none">
+                      <p className="text-xs sm:text-sm text-white/90 font-light font-serif">
+                        {chapter.items[0].caption}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View photograph: ${chapter.items[1].caption}`}
+                    onClick={() => openLightboxById(chapter.items[1].id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openLightboxById(chapter.items[1].id);
+                      }
+                    }}
+                    className="lg:col-span-5 group relative overflow-hidden bg-neutral-950 cursor-pointer rounded-[2px] border border-white/[0.07] hover:border-white/20 transition-colors duration-500 select-none focus:outline-hidden focus-visible:ring-1 focus-visible:ring-white"
+                  >
+                    <div className="w-full h-full aspect-[4/3] sm:aspect-[16/10] min-h-[240px] lg:min-h-[380px] overflow-hidden">
+                      <img
+                        src={chapter.items[1].imageUrl}
+                        alt={chapter.items[1].alt}
+                        loading="lazy"
+                        className="w-full h-full object-cover object-center transition-transform duration-1000 ease-out group-hover:scale-[1.02]"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-400 pointer-events-none" />
+                    <div className="absolute bottom-4 left-5 sm:bottom-6 sm:left-6 right-5 z-10 pointer-events-none">
+                      <p className="text-xs sm:text-sm text-white/90 font-light font-serif">
+                        {chapter.items[1].caption}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* Evening: 5 cols glowing dining room + 7 cols open-air rooftop terrace */
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-stretch">
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View photograph: ${chapter.items[0].caption}`}
+                    onClick={() => openLightboxById(chapter.items[0].id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openLightboxById(chapter.items[0].id);
+                      }
+                    }}
+                    className="lg:col-span-5 group relative overflow-hidden bg-neutral-950 cursor-pointer rounded-[2px] border border-white/[0.07] hover:border-white/20 transition-colors duration-500 select-none focus:outline-hidden focus-visible:ring-1 focus-visible:ring-white"
+                  >
+                    <div className="w-full h-full aspect-[4/3] sm:aspect-[16/11] min-h-[260px] lg:min-h-[380px] overflow-hidden">
+                      <img
+                        src={chapter.items[0].imageUrl}
+                        alt={chapter.items[0].alt}
+                        loading="lazy"
+                        className="w-full h-full object-cover object-center transition-transform duration-1000 ease-out group-hover:scale-[1.02]"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-400 pointer-events-none" />
+                    <div className="absolute bottom-4 left-5 sm:bottom-6 sm:left-6 right-5 z-10 pointer-events-none">
+                      <p className="text-xs sm:text-sm text-white/90 font-light font-serif">
+                        {chapter.items[0].caption}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View photograph: ${chapter.items[1].caption}`}
+                    onClick={() => openLightboxById(chapter.items[1].id)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openLightboxById(chapter.items[1].id);
+                      }
+                    }}
+                    className="lg:col-span-7 group relative overflow-hidden bg-neutral-950 cursor-pointer rounded-[2px] border border-white/[0.07] hover:border-white/20 transition-colors duration-500 select-none focus:outline-hidden focus-visible:ring-1 focus-visible:ring-white"
+                  >
+                    <div className="w-full h-full aspect-[16/10] sm:aspect-[16/10] min-h-[260px] lg:min-h-[380px] overflow-hidden">
+                      <img
+                        src={chapter.items[1].imageUrl}
+                        alt={chapter.items[1].alt}
+                        loading="lazy"
+                        className="w-full h-full object-cover object-center transition-transform duration-1000 ease-out group-hover:scale-[1.02]"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-60 group-hover:opacity-90 transition-opacity duration-400 pointer-events-none" />
+                    <div className="absolute bottom-4 left-5 sm:bottom-6 sm:left-8 right-5 z-10 pointer-events-none">
+                      <p className="text-xs sm:text-sm text-white/90 font-light font-serif">
+                        {chapter.items[1].caption}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </motion.div>
+          ))}
         </div>
       </div>
 
       {/* ========================================================================= */}
-      {/* LIGHTBOX MODAL */}
+      {/* MINIMAL EDITORIAL LIGHTBOX MODAL */}
       {/* ========================================================================= */}
       {selectedImageIndex !== null && (
         <div
@@ -347,7 +490,7 @@ export const GallerySection: React.FC = () => {
           aria-label="Photograph preview"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
-          className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 animate-fadeIn select-none"
+          className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 sm:p-8 select-none"
           onClick={() => setSelectedImageIndex(null)}
         >
           {/* Close button */}
@@ -359,31 +502,31 @@ export const GallerySection: React.FC = () => {
             className="absolute top-5 right-5 sm:top-6 sm:right-6 text-white/70 hover:text-white transition-colors p-2.5 sm:p-3 rounded-full bg-white/10 hover:bg-white/20 z-50 cursor-pointer focus:outline-hidden focus-visible:ring-1 focus-visible:ring-white"
             aria-label="Close image preview"
           >
-            <X size={22} strokeWidth={1.5} />
+            <X size={20} strokeWidth={1.5} />
           </button>
 
           {/* Previous image */}
           <button
             onClick={(e) => {
               e.stopPropagation();
-              setSelectedImageIndex((prev) => (prev !== null ? (prev - 1 + GALLERY_ITEMS.length) % GALLERY_ITEMS.length : null));
+              setSelectedImageIndex((prev) => (prev !== null ? (prev - 1 + ALL_GALLERY_IMAGES.length) % ALL_GALLERY_IMAGES.length : null));
             }}
             className="flex absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors p-2.5 sm:p-3.5 rounded-full bg-black/60 sm:bg-white/10 hover:bg-white/20 z-50 items-center justify-center cursor-pointer focus:outline-hidden focus-visible:ring-1 focus-visible:ring-white border border-white/10"
             aria-label="Previous image"
           >
-            <ChevronLeft size={22} strokeWidth={1.5} />
+            <ChevronLeft size={20} strokeWidth={1.5} />
           </button>
 
           {/* Next image */}
           <button
             onClick={(e) => {
               e.stopPropagation();
-              setSelectedImageIndex((prev) => (prev !== null ? (prev + 1) % GALLERY_ITEMS.length : null));
+              setSelectedImageIndex((prev) => (prev !== null ? (prev + 1) % ALL_GALLERY_IMAGES.length : null));
             }}
             className="flex absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-colors p-2.5 sm:p-3.5 rounded-full bg-black/60 sm:bg-white/10 hover:bg-white/20 z-50 items-center justify-center cursor-pointer focus:outline-hidden focus-visible:ring-1 focus-visible:ring-white border border-white/10"
             aria-label="Next image"
           >
-            <ChevronRight size={22} strokeWidth={1.5} />
+            <ChevronRight size={20} strokeWidth={1.5} />
           </button>
 
           {/* Lightbox Content Container */}
@@ -392,17 +535,17 @@ export const GallerySection: React.FC = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <img
-              src={GALLERY_ITEMS[selectedImageIndex].imageUrl}
-              alt={GALLERY_ITEMS[selectedImageIndex].alt}
-              className="max-w-full max-h-[72vh] object-contain rounded-sm shadow-2xl"
+              src={ALL_GALLERY_IMAGES[selectedImageIndex].imageUrl}
+              alt={ALL_GALLERY_IMAGES[selectedImageIndex].alt}
+              className="max-w-full max-h-[72vh] object-contain rounded-[2px] shadow-2xl"
               referrerPolicy="no-referrer"
             />
             <div className="mt-5 text-center max-w-2xl px-4">
               <span className="text-[10px] tracking-[0.24em] uppercase text-neutral-400 font-medium block mb-1">
-                {GALLERY_ITEMS[selectedImageIndex].theme} • {selectedImageIndex + 1} / {GALLERY_ITEMS.length}
+                {ALL_GALLERY_IMAGES[selectedImageIndex].chapterNumber} — {ALL_GALLERY_IMAGES[selectedImageIndex].chapterTitle} &bull; {selectedImageIndex + 1} / {ALL_GALLERY_IMAGES.length}
               </span>
-              <p className="text-[15px] sm:text-[17px] text-white font-light font-serif">
-                {GALLERY_ITEMS[selectedImageIndex].caption}
+              <p className="text-[14px] sm:text-[16px] text-white font-light font-serif">
+                {ALL_GALLERY_IMAGES[selectedImageIndex].caption}
               </p>
             </div>
           </div>
@@ -411,4 +554,3 @@ export const GallerySection: React.FC = () => {
     </section>
   );
 };
-
