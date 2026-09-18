@@ -57,6 +57,7 @@ export const defaultCafeSettings: CafeSettings = {
   cafeName: 'CHAAYÉ KHANA – DHA-4',
   tagline: 'Tea Beyond Borders',
   logo: '',
+  heroImage: '',
   phone: '+92 51 111 242 293',
   whatsapp: '+923005552429',
   instagram: '@chaayekhana',

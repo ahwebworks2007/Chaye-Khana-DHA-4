@@ -79,7 +79,7 @@ export const HeroSection: React.FC = () => {
         >
           {/* Base cinematic restaurant interior photograph (Full Bleed, Edge-to-Edge) */}
           <img
-            src={heroBackground}
+            src={cafeSettings.heroImage || heroBackground}
             alt="Artisanal breakfast spread with croissant, eggs, and Karak chai at Chaayé Khana"
             loading="eager"
             fetchPriority="high"

@@ -126,6 +126,7 @@ export interface CafeSettings {
   adminPin?: string; // legacy field
   adminPasswordHash?: string; // SHA-256 secure hash
   logo?: string;
+  heroImage?: string;
   socialsConfig?: SocialPlatformConfig[];
 }
 

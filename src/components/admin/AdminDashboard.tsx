@@ -56,6 +56,7 @@ import { formatPrice } from '../../utils/helpers';
 import { navigateTo } from '../../utils/router';
 import { ProfileDropdown } from '../ProfileDropdown';
 import { CK_BRANCHES } from '../../data/branchesData';
+import defaultHeroBackground from '../../assets/images/hero_background_1789169162945.jpg';
 
 interface AdminDashboardProps {
   onNavigate?: (path: string) => void;
@@ -105,8 +106,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
   const [passwordChangeError, setPasswordChangeError] = useState('');
   const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-  // Admin Active Tab: 'menu' | 'categories' | 'settings'
-  const [adminTab, setAdminTab] = useState<'menu' | 'categories' | 'settings'>('menu');
+  // Admin Active Tab: 'menu' | 'categories' | 'hero' | 'settings'
+  const [adminTab, setAdminTab] = useState<'menu' | 'categories' | 'hero' | 'settings'>('menu');
 
   // Category-based menu management state
   const [selectedAdminCategoryId, setSelectedAdminCategoryId] = useState<string | null>(null);
@@ -224,6 +225,106 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
   React.useEffect(() => {
     setLocalCafe(cafeSettings);
   }, [cafeSettings]);
+
+  // Homepage Hero Background Image State & Handlers
+  const heroFileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const [selectedHeroFile, setSelectedHeroFile] = useState<File | null>(null);
+  const [heroPreviewUrl, setHeroPreviewUrl] = useState<string>(cafeSettings.heroImage || '');
+  const [isUploadingHero, setIsUploadingHero] = useState(false);
+  const [heroUploadError, setHeroUploadError] = useState<string | null>(null);
+  const [isDraggingHeroImage, setIsDraggingHeroImage] = useState(false);
+
+  React.useEffect(() => {
+    if (!selectedHeroFile) {
+      setHeroPreviewUrl(cafeSettings.heroImage || '');
+    }
+  }, [cafeSettings.heroImage, selectedHeroFile]);
+
+  const validateAndProcessHeroImage = (file: File) => {
+    setHeroUploadError(null);
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type.toLowerCase())) {
+      setHeroUploadError('Invalid format. Please select a JPG, JPEG, PNG, or WEBP image.');
+      return;
+    }
+
+    const maxBytes = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxBytes) {
+      setHeroUploadError(`Image is too large (${(file.size / (1024 * 1024)).toFixed(1)}MB). Max allowed size is 5MB.`);
+      return;
+    }
+
+    setSelectedHeroFile(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = (e.target?.result as string) || '';
+      setHeroPreviewUrl(result);
+    };
+    reader.onerror = () => {
+      setHeroUploadError('Failed to read selected image file. Please try another image.');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveHeroImage = () => {
+    setSelectedHeroFile(null);
+    setHeroPreviewUrl('');
+    setHeroUploadError(null);
+    if (heroFileInputRef.current) {
+      heroFileInputRef.current.value = '';
+    }
+  };
+
+  const handleSaveHeroImage = async () => {
+    if (isUploadingHero) return;
+    setIsUploadingHero(true);
+    setHeroUploadError(null);
+
+    let finalHeroUrl = heroPreviewUrl.trim();
+
+    try {
+      // If a new local file from laptop was selected, upload it to permanent backend storage
+      if (selectedHeroFile && heroPreviewUrl && heroPreviewUrl.startsWith('data:')) {
+        const uploadRes = await fetch('/api/admin/upload-image', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            image: heroPreviewUrl,
+            fileName: `hero-${selectedHeroFile.name}`,
+          }),
+        });
+
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok || !uploadData.success || !uploadData.url) {
+          setHeroUploadError(uploadData.error || 'Failed to upload hero image. Please try again.');
+          setIsUploadingHero(false);
+          return;
+        }
+
+        finalHeroUrl = uploadData.url;
+      }
+
+      await updateCafeSettings({
+        ...cafeSettings,
+        heroImage: finalHeroUrl,
+      });
+
+      setSelectedHeroFile(null);
+      setHeroPreviewUrl(finalHeroUrl);
+      showSuccessNotice(
+        finalHeroUrl
+          ? 'Homepage hero image updated and saved successfully!'
+          : 'Homepage hero image cleared. Default background restored.'
+      );
+    } catch (err: any) {
+      console.error('Hero image save error:', err);
+      setHeroUploadError('An error occurred while saving hero image. Please try again.');
+    } finally {
+      setIsUploadingHero(false);
+    }
+  };
 
   const [saveSuccessMsg, setSaveSuccessMsg] = useState<string | null>(null);
   const [saveErrorMsg, setSaveErrorMsg] = useState<string | null>(null);
@@ -679,6 +780,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
           >
             <Tag className="w-3.5 h-3.5" />
             <span>Categories ({categories.length})</span>
+          </button>
+
+          <button
+            onClick={() => setAdminTab('hero')}
+            className={`px-3.5 py-2 rounded-xl transition-all flex items-center gap-2 cursor-pointer ${
+              adminTab === 'hero'
+                ? 'bg-amber-500 text-stone-950 font-bold shadow-xs'
+                : 'text-stone-400 hover:text-stone-100 hover:bg-stone-800/80'
+            }`}
+          >
+            <ImageIcon className="w-3.5 h-3.5" />
+            <span>Homepage Hero Image</span>
           </button>
 
           <button
@@ -1705,6 +1818,223 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                 <Save className="w-4 h-4" />
                 <span>SAVE CHANGES</span>
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* TAB: HOMEPAGE HERO IMAGE */}
+        {adminTab === 'hero' && (
+          <div className="bg-stone-900 rounded-3xl border border-stone-800 shadow-xl p-6 sm:p-8 space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-stone-800">
+              <div>
+                <div className="flex items-center gap-2.5">
+                  <span className="p-2 rounded-xl bg-amber-950/80 text-amber-400 border border-amber-800/80">
+                    <ImageIcon className="w-5 h-5 text-amber-400" />
+                  </span>
+                  <h2 className="text-xl font-bold font-display text-stone-100">
+                    Homepage Hero Background Image
+                  </h2>
+                </div>
+                <p className="text-xs text-stone-400 mt-1">
+                  Upload, preview, and customize the background image displayed on the customer homepage hero banner.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleViewStorefront}
+                  className="px-4 py-2 rounded-xl bg-stone-800 border border-stone-700 hover:bg-stone-700 text-xs font-semibold text-stone-200 transition-colors cursor-pointer flex items-center gap-1.5"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                  <span>Preview on Live Site</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Hero Image Management */}
+            <div className="space-y-6">
+              {/* Current Image Preview */}
+              <div>
+                <div className="flex items-center justify-between mb-2.5">
+                  <label className="text-xs font-bold uppercase tracking-wider text-stone-300">
+                    Current Image Preview
+                  </label>
+                  <span className="text-[11px] text-stone-400">
+                    {selectedHeroFile
+                      ? 'Previewing selected image from laptop (unsaved)'
+                      : cafeSettings.heroImage
+                      ? 'Custom hero background active'
+                      : 'Default cafe interior background active'}
+                  </span>
+                </div>
+
+                <div className="relative w-full h-64 sm:h-80 md:h-96 rounded-2xl overflow-hidden border border-stone-800 bg-stone-950 shadow-inner">
+                  <img
+                    src={heroPreviewUrl || cafeSettings.heroImage || defaultHeroBackground}
+                    alt="Homepage Hero Background Preview"
+                    className="w-full h-full object-cover object-center transition-all duration-300"
+                  />
+
+                  {/* Visual typography preview overlay */}
+                  <div className="absolute inset-0 bg-black/30 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent flex flex-col justify-center px-6 sm:px-12 text-left pointer-events-none select-none">
+                    <span className="text-[10px] uppercase tracking-[0.25em] text-neutral-300 font-medium mb-1 drop-shadow-sm">
+                      DHA-4 • RAWALPINDI
+                    </span>
+                    <span className="text-[12px] uppercase tracking-[0.28em] text-[#D8D4CD] font-medium mb-2 drop-shadow-sm">
+                      CHAAYÉ KHANA
+                    </span>
+                    <h3 className="font-serif text-xl sm:text-2xl md:text-3xl text-white font-normal leading-tight max-w-md drop-shadow-md">
+                      Where Tea, Food &amp; Conversation Meet
+                    </h3>
+                    <span className="mt-4 inline-block px-4 py-1.5 rounded-[2px] border border-white/50 text-[10px] tracking-[0.18em] uppercase text-white w-max bg-black/20 backdrop-blur-[2px]">
+                      Explore Menu
+                    </span>
+                  </div>
+
+                  {/* Status Tag */}
+                  <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
+                    {selectedHeroFile ? (
+                      <span className="px-3 py-1.5 rounded-full bg-amber-500 text-stone-950 font-bold text-[11px] shadow-lg flex items-center gap-1.5">
+                        <AlertCircle className="w-3.5 h-3.5" />
+                        Unsaved Changes
+                      </span>
+                    ) : cafeSettings.heroImage ? (
+                      <span className="px-3 py-1.5 rounded-full bg-emerald-500 text-stone-950 font-bold text-[11px] shadow-lg flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5" />
+                        Live Custom Hero
+                      </span>
+                    ) : (
+                      <span className="px-3 py-1.5 rounded-full bg-stone-800/90 text-stone-300 font-semibold text-[11px] border border-stone-700 shadow-lg">
+                        Default Background
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Upload Drop Area */}
+              <div className="space-y-3">
+                <label className="block text-xs font-bold uppercase tracking-wider text-stone-300">
+                  Upload New Image
+                </label>
+                
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDraggingHeroImage(true);
+                  }}
+                  onDragLeave={(e) => {
+                    e.preventDefault();
+                    setIsDraggingHeroImage(false);
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDraggingHeroImage(false);
+                    const file = e.dataTransfer.files?.[0];
+                    if (file) validateAndProcessHeroImage(file);
+                  }}
+                  onClick={() => heroFileInputRef.current?.click()}
+                  className={`relative overflow-hidden border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 ${
+                    isDraggingHeroImage
+                      ? 'border-amber-500 bg-amber-500/10 scale-[0.99]'
+                      : 'border-stone-800 bg-stone-950/60 hover:bg-stone-950 hover:border-amber-500/50'
+                  }`}
+                >
+                  <input
+                    ref={heroFileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) validateAndProcessHeroImage(file);
+                    }}
+                  />
+
+                  <div className="w-14 h-14 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-3 shadow-sm">
+                    <Upload className="w-6 h-6" />
+                  </div>
+
+                  <p className="text-sm font-semibold text-stone-200">
+                    {selectedHeroFile ? 'Click or drop to choose a different image' : 'Click to browse or drag & drop image from your laptop'}
+                  </p>
+                  <p className="text-xs text-stone-400 mt-1">
+                    Supported formats: <span className="text-stone-300 font-medium">JPG, JPEG, PNG, WEBP</span> (Max size: 5MB)
+                  </p>
+
+                  {selectedHeroFile && (
+                    <div className="mt-3.5 px-3.5 py-1.5 rounded-xl bg-stone-900 border border-stone-800 text-xs text-amber-400 font-mono flex items-center gap-2">
+                      <ImageIcon className="w-3.5 h-3.5 shrink-0" />
+                      <span>{selectedHeroFile.name} ({(selectedHeroFile.size / (1024 * 1024)).toFixed(2)} MB)</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Upload Error Alert */}
+                {heroUploadError && (
+                  <div className="p-3.5 rounded-xl bg-rose-950/80 border border-rose-800/80 text-rose-200 text-xs font-medium flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                    <span>{heroUploadError}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-stone-800">
+                <div className="flex items-center gap-2">
+                  {selectedHeroFile && (
+                    <button
+                      type="button"
+                      onClick={handleRemoveHeroImage}
+                      className="px-4 py-2.5 rounded-xl bg-stone-800 hover:bg-stone-700 text-stone-300 hover:text-white text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1.5"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                      <span>Cancel Selection</span>
+                    </button>
+                  )}
+
+                  {cafeSettings.heroImage && (
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (window.confirm('Reset homepage hero image back to the default background?')) {
+                          handleRemoveHeroImage();
+                          await updateCafeSettings({
+                            ...cafeSettings,
+                            heroImage: '',
+                          });
+                          showSuccessNotice('Homepage hero background restored to default.');
+                        }
+                      }}
+                      className="px-4 py-2.5 rounded-xl bg-rose-950/40 hover:bg-rose-950/70 border border-rose-900/40 text-rose-300 hover:text-rose-200 text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1.5"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Revert to Default Image</span>
+                    </button>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleSaveHeroImage}
+                  disabled={isUploadingHero || (!selectedHeroFile && heroPreviewUrl === (cafeSettings.heroImage || ''))}
+                  className="px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-stone-950 font-bold text-xs transition-colors shadow-md cursor-pointer flex items-center gap-2"
+                >
+                  {isUploadingHero ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Uploading &amp; Saving...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      <span>Save Hero Image</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         )}
