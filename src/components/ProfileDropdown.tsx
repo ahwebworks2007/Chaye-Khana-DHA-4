@@ -3,15 +3,11 @@ import {
   MapPin,
   Phone,
   Clock,
-  Package,
-  ArrowLeft,
   Shield,
-  Search,
-  CheckCircle2,
+  Info,
 } from 'lucide-react';
 import { useCafe } from '../context/CafeContext';
 import { navigateTo } from '../utils/router';
-import { CustomerOrder } from '../types';
 
 interface ProfileDropdownProps {
   isAdminContext?: boolean;
@@ -21,16 +17,9 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ isAdminContext
   const {
     activeBranch,
     cafeSettings,
-    fetchOrderForTracking,
   } = useCafe();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [orderQuery, setOrderQuery] = useState('');
-  const [trackedOrder, setTrackedOrder] = useState<CustomerOrder | null>(null);
-  const [isSearchingOrder, setIsSearchingOrder] = useState(false);
-  const [orderSearchError, setOrderSearchError] = useState('');
-  const [showTrackerView, setShowTrackerView] = useState(false);
-
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown on outside click or escape key
@@ -38,15 +27,11 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ isAdminContext
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setIsOpen(false);
-        setShowTrackerView(false);
-        setOrderSearchError('');
       }
     };
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setIsOpen(false);
-        setShowTrackerView(false);
-        setOrderSearchError('');
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -57,32 +42,6 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ isAdminContext
     };
   }, []);
 
-  const handleSearchOrder = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const query = orderQuery.trim();
-    if (!query) {
-      setOrderSearchError('Please enter an order ID (e.g. ORD-123456)');
-      return;
-    }
-
-    setIsSearchingOrder(true);
-    setOrderSearchError('');
-
-    try {
-      const order = await fetchOrderForTracking(query);
-      if (order) {
-        setTrackedOrder(order);
-        setShowTrackerView(true);
-      } else {
-        setOrderSearchError('Order not found. Please verify your order number.');
-      }
-    } catch {
-      setOrderSearchError('Unable to retrieve order details.');
-    } finally {
-      setIsSearchingOrder(false);
-    }
-  };
-
   return (
     <div className="relative inline-flex items-center" ref={dropdownRef}>
       {/* Profile Trigger Button */}
@@ -91,14 +50,12 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ isAdminContext
         type="button"
         onClick={() => {
           setIsOpen(!isOpen);
-          setShowTrackerView(false);
-          setOrderSearchError('');
         }}
         className="w-8 h-8 rounded-[2px] border border-white/10 hover:border-white/25 text-neutral-400 hover:text-white bg-transparent hover:bg-white/[0.04] transition-all duration-300 cursor-pointer focus:outline-hidden flex items-center justify-center select-none"
-        aria-label="Chaayé Khana Guest & Staff Menu"
-        title="Order Tracker & Location"
+        aria-label="Chaayé Khana Info & Staff Portal"
+        title="Location & Staff Portal"
       >
-        <Package className="w-3.5 h-3.5 stroke-[1.75]" />
+        <Info className="w-3.5 h-3.5 stroke-[1.75]" />
       </button>
 
       {/* DROPDOWN LUXURY POPUP PANEL */}
@@ -107,148 +64,56 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ isAdminContext
           id="profile-dropdown-panel"
           className="absolute right-0 top-full mt-3 w-80 sm:w-88 rounded-[2px] border border-white/10 bg-[#09090b]/95 backdrop-blur-xl shadow-2xl py-4 px-4 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
         >
-          {showTrackerView && trackedOrder ? (
-            /* ========================================================= */
-            /* 1. RESTRICTED GUEST ORDER TRACKING VIEW */
-            /* ========================================================= */
-            <div className="space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
-                <button
-                  type="button"
-                  onClick={() => setShowTrackerView(false)}
-                  className="text-xs text-neutral-400 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Back</span>
-                </button>
-                <span className="text-[11px] font-mono text-emerald-400 uppercase tracking-widest font-medium">
-                  {trackedOrder.status}
+          <div className="space-y-4">
+            {/* Cafe Location Header */}
+            <div className="pb-3 border-b border-white/[0.08]">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs font-serif uppercase tracking-widest text-white">
+                  {cafeSettings.cafeName || activeBranch.name}
                 </span>
               </div>
-
-              <div>
-                <div className="flex justify-between items-start mb-1">
-                  <span className="text-xs text-white font-medium">Order #{trackedOrder.id}</span>
-                  <span className="text-xs text-neutral-400">
-                    PKR {trackedOrder.total.toLocaleString()}
-                  </span>
-                </div>
-                <p className="text-[11px] text-neutral-400">
-                  {new Date(trackedOrder.createdAt || Date.now()).toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })} • {trackedOrder.orderType.toUpperCase()}
-                </p>
-              </div>
-
-              <div className="bg-white/[0.03] p-3 rounded-[2px] border border-white/[0.05] space-y-2">
-                <span className="text-[10px] text-neutral-400 uppercase tracking-wider block">
-                  Items ({trackedOrder.items.length})
-                </span>
-                <div className="max-h-32 overflow-y-auto space-y-1.5 text-xs text-neutral-300 pr-1">
-                  {trackedOrder.items.map((it, idx) => (
-                    <div key={idx} className="flex justify-between text-[12px]">
-                      <span>
-                        {it.quantity}x {it.menuItem?.name || 'Item'}
-                      </span>
-                      <span className="text-neutral-400 font-mono">
-                        PKR {it.totalPrice?.toLocaleString() || it.unitPrice?.toLocaleString()}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {trackedOrder.deliveryAddress && (
-                <div className="text-[11px] text-neutral-400 flex items-start gap-2">
-                  <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5 text-neutral-400" />
-                  <span>{trackedOrder.deliveryAddress}</span>
-                </div>
-              )}
+              <p className="text-[11px] text-neutral-400 leading-snug">
+                {cafeSettings.address || activeBranch.address}
+              </p>
             </div>
-          ) : (
-            /* ========================================================= */
-            /* 2. MAIN SINGLE-LOCATION GUEST & STAFF QUICK ACTIONS */
-            /* ========================================================= */
-            <div className="space-y-4">
-              {/* Cafe Location Header */}
-              <div className="pb-3 border-b border-white/[0.08]">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-xs font-serif uppercase tracking-widest text-white">
-                    {cafeSettings.cafeName || activeBranch.name}
-                  </span>
-                </div>
-                <p className="text-[11px] text-neutral-400 leading-snug">
-                  {cafeSettings.address || activeBranch.address}
-                </p>
-              </div>
 
-              {/* Live Order Lookup Form */}
-              <div className="space-y-2">
-                <span className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-medium block">
-                  TRACK LIVE ORDER
-                </span>
-                <form onSubmit={handleSearchOrder} className="flex gap-2">
-                  <div className="relative flex-1">
-                    <input
-                      type="text"
-                      placeholder="e.g. ORD-123456"
-                      value={orderQuery}
-                      onChange={(e) => setOrderQuery(e.target.value)}
-                      className="w-full bg-white/[0.04] border border-white/10 rounded-[2px] px-2.5 py-1.5 text-xs text-white placeholder:text-neutral-400 focus:outline-hidden focus:border-white/30"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={isSearchingOrder}
-                    className="px-3 py-1.5 bg-white text-black text-xs font-medium rounded-[2px] hover:bg-neutral-200 transition-colors cursor-pointer disabled:opacity-50"
-                  >
-                    {isSearchingOrder ? '...' : 'Track'}
-                  </button>
-                </form>
-                {orderSearchError && (
-                  <p className="text-[11px] text-rose-400">{orderSearchError}</p>
-                )}
+            {/* Cafe Operating Contact Details */}
+            <div className="space-y-2 pt-1 text-xs text-neutral-400">
+              <div className="flex items-center gap-2">
+                <Clock className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                <span>{cafeSettings.openingHoursDisplay || activeBranch.openingHours}</span>
               </div>
-
-              {/* Cafe Operating Contact Details */}
-              <div className="space-y-2 pt-2 border-t border-white/[0.06] text-xs text-neutral-400">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-                  <span>{cafeSettings.openingHoursDisplay || activeBranch.openingHours}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-                  <a
-                    href={`tel:${cafeSettings.phone || activeBranch.phone}`}
-                    className="hover:text-white transition-colors"
-                  >
-                    {cafeSettings.phone || activeBranch.phone}
-                  </a>
-                </div>
-              </div>
-
-              {/* Staff / Admin Portal Link */}
-              <div className="pt-3 border-t border-white/[0.08]">
-                <button
-                  type="button"
-                  id="dropdown-staff-portal-btn"
-                  onClick={() => {
-                    setIsOpen(false);
-                    navigateTo('/admin');
-                  }}
-                  className="w-full flex items-center justify-between px-3 py-2 bg-white/[0.03] hover:bg-white/[0.07] border border-white/[0.08] rounded-[2px] text-xs text-neutral-300 hover:text-white transition-colors cursor-pointer"
+              <div className="flex items-center gap-2">
+                <Phone className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                <a
+                  href={`tel:${cafeSettings.phone || activeBranch.phone}`}
+                  className="hover:text-white transition-colors"
                 >
-                  <span className="flex items-center gap-2">
-                    <Shield className="w-3.5 h-3.5 text-neutral-400" />
-                    <span>Staff / Admin Portal</span>
-                  </span>
-                  <span className="text-[10px] uppercase font-mono text-neutral-400">/admin</span>
-                </button>
+                  {cafeSettings.phone || activeBranch.phone}
+                </a>
               </div>
             </div>
-          )}
+
+            {/* Staff / Admin Portal Link */}
+            <div className="pt-3 border-t border-white/[0.08]">
+              <button
+                type="button"
+                id="dropdown-staff-portal-btn"
+                onClick={() => {
+                  setIsOpen(false);
+                  navigateTo('/admin');
+                }}
+                className="w-full flex items-center justify-between px-3 py-2 bg-white/[0.03] hover:bg-white/[0.07] border border-white/[0.08] rounded-[2px] text-xs text-neutral-300 hover:text-white transition-colors cursor-pointer"
+              >
+                <span className="flex items-center gap-2">
+                  <Shield className="w-3.5 h-3.5 text-neutral-400" />
+                  <span>Staff / Admin Portal</span>
+                </span>
+                <span className="text-[10px] uppercase font-mono text-neutral-400">/admin</span>
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
