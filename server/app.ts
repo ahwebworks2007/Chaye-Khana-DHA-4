@@ -1,5 +1,8 @@
 import express, { Express } from 'express';
 import cookieParser from 'cookie-parser';
+import path from 'path';
+import fs from 'fs';
+import crypto from 'crypto';
 import {
   authenticateUser,
   changeUserPassword,
@@ -29,8 +32,15 @@ export function createExpressApp(): Express {
   const app = express();
 
   // Standard middleware
-  app.use(express.json({ limit: '10mb' }));
+  app.use(express.json({ limit: '15mb' }));
   app.use(cookieParser());
+
+  // Static serving for uploaded menu assets
+  const uploadsMenuDir = path.join(process.cwd(), 'uploads', 'menu');
+  if (!fs.existsSync(uploadsMenuDir)) {
+    fs.mkdirSync(uploadsMenuDir, { recursive: true });
+  }
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
   // Ensure Firestore is initialized / seeded on first request
   app.use(async (req, res, next) => {
@@ -425,6 +435,82 @@ export function createExpressApp(): Express {
     }
 
     return res.json({ success: true, orderId, status });
+  });
+
+  // Admin Image Upload Endpoint (JPG, JPEG, PNG, WEBP, max 5MB)
+  app.post('/api/admin/upload-image', requireAuth, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { image, fileName } = req.body || {};
+      if (!image || typeof image !== 'string') {
+        return res.status(400).json({ error: 'Image data is required.' });
+      }
+
+      // Extract MIME type and base64 content
+      let mimeType = 'image/jpeg';
+      let base64Data = image;
+
+      const matches = image.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+      if (matches && matches.length === 3) {
+        mimeType = matches[1].toLowerCase();
+        base64Data = matches[2];
+      }
+
+      const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      if (!allowedMimeTypes.includes(mimeType)) {
+        return res.status(400).json({
+          error: 'Invalid image format. Supported formats: JPG, JPEG, PNG, and WEBP.',
+        });
+      }
+
+      const buffer = Buffer.from(base64Data, 'base64');
+      const MAX_SIZE = 5 * 1024 * 1024; // 5MB limit
+      if (buffer.length > MAX_SIZE) {
+        return res.status(400).json({
+          error: 'Image file size exceeds the 5MB limit. Please upload a smaller image.',
+        });
+      }
+
+      let ext = 'jpg';
+      if (mimeType.includes('png')) ext = 'png';
+      else if (mimeType.includes('webp')) ext = 'webp';
+      else if (mimeType.includes('jpeg') || mimeType.includes('jpg')) ext = 'jpg';
+
+      const safeBaseName = fileName
+        ? path.parse(fileName).name.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 30)
+        : 'dish';
+      const uniqueFileName = `${safeBaseName || 'dish'}-${Date.now()}-${crypto.randomBytes(4).toString('hex')}.${ext}`;
+      const destinationPath = path.join(uploadsMenuDir, uniqueFileName);
+
+      await fs.promises.writeFile(destinationPath, buffer);
+
+      const publicUrl = `/uploads/menu/${uniqueFileName}`;
+      return res.json({
+        success: true,
+        url: publicUrl,
+        fileName: uniqueFileName,
+        size: buffer.length,
+      });
+    } catch (err: any) {
+      console.error('[Upload API] Error saving uploaded image:', err);
+      return res.status(500).json({ error: 'Failed to save uploaded image.' });
+    }
+  });
+
+  // Admin Image Delete Endpoint (Safe cleanup)
+  app.post('/api/admin/delete-image', requireAuth, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { url } = req.body || {};
+      if (url && typeof url === 'string' && url.startsWith('/uploads/menu/')) {
+        const targetFileName = path.basename(url);
+        const filePath = path.join(uploadsMenuDir, targetFileName);
+        if (fs.existsSync(filePath)) {
+          await fs.promises.unlink(filePath);
+        }
+      }
+      return res.json({ success: true });
+    } catch {
+      return res.json({ success: false });
+    }
   });
 
   // Compatibility routes for existing admin branch calls

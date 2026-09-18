@@ -1,4 +1,17 @@
-import { getAdminFirestore } from './firebaseAdmin';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  orderBy,
+  limit,
+  writeBatch,
+} from 'firebase/firestore';
+import { serverDb } from './firebaseAdmin';
 import { defaultCategories, defaultMenuItems } from '../src/data/defaultMenu';
 import { defaultCafeSettings } from '../src/data/defaultSettings';
 import { MenuItem, MenuCategory, CafeSettings, CustomerOrder, OrderStatus } from '../src/types';
@@ -38,34 +51,34 @@ let hasSeeded = false;
 // ==========================================
 export async function ensureFirestoreSeeded(): Promise<void> {
   if (hasSeeded) return;
-  const db = getAdminFirestore();
 
   try {
     // Check if categories collection has documents
-    const catSnapshot = await db.collection(CATEGORIES_COL).limit(1).get();
+    const catQuery = query(collection(serverDb, CATEGORIES_COL), limit(1));
+    const catSnapshot = await getDocs(catQuery);
     if (catSnapshot.empty) {
       console.log('[Firestore] Empty categories collection detected. Seeding categories...');
-      const batch = db.batch();
+      const batch = writeBatch(serverDb);
       for (const cat of defaultCategories) {
-        const ref = db.collection(CATEGORIES_COL).doc(cat.id);
-        batch.set(ref, { ...cat, updatedAt: Date.now() });
+        const docRef = doc(serverDb, CATEGORIES_COL, cat.id);
+        batch.set(docRef, { ...cat, updatedAt: Date.now() });
       }
       await batch.commit();
       console.log(`[Firestore] Seeded ${defaultCategories.length} categories.`);
     }
 
     // Check if menu_items collection has documents
-    const menuSnapshot = await db.collection(MENU_ITEMS_COL).limit(1).get();
+    const menuQuery = query(collection(serverDb, MENU_ITEMS_COL), limit(1));
+    const menuSnapshot = await getDocs(menuQuery);
     if (menuSnapshot.empty) {
       console.log('[Firestore] Empty menu_items collection detected. Seeding authentic menu items...');
-      // Firestore batch size limit is 500 ops
       const chunkSize = 400;
       for (let i = 0; i < defaultMenuItems.length; i += chunkSize) {
         const chunk = defaultMenuItems.slice(i, i + chunkSize);
-        const batch = db.batch();
+        const batch = writeBatch(serverDb);
         for (const item of chunk) {
-          const ref = db.collection(MENU_ITEMS_COL).doc(item.id);
-          batch.set(ref, { ...item, updatedAt: Date.now() });
+          const docRef = doc(serverDb, MENU_ITEMS_COL, item.id);
+          batch.set(docRef, { ...item, updatedAt: Date.now() });
         }
         await batch.commit();
       }
@@ -73,10 +86,11 @@ export async function ensureFirestoreSeeded(): Promise<void> {
     }
 
     // Check if cafe_settings document exists
-    const settingsDoc = await db.collection(SETTINGS_COL).doc(SETTINGS_DOC_ID).get();
-    if (!settingsDoc.exists) {
+    const settingsDocRef = doc(serverDb, SETTINGS_COL, SETTINGS_DOC_ID);
+    const settingsSnap = await getDoc(settingsDocRef);
+    if (!settingsSnap.exists()) {
       console.log('[Firestore] Seeding default cafe settings...');
-      await db.collection(SETTINGS_COL).doc(SETTINGS_DOC_ID).set({
+      await setDoc(settingsDocRef, {
         ...defaultCafeSettings,
         updatedAt: Date.now(),
       });
@@ -84,10 +98,11 @@ export async function ensureFirestoreSeeded(): Promise<void> {
     }
 
     // Check if admin user exists
-    const adminDoc = await db.collection(ADMIN_USERS_COL).doc(ADMIN_DOC_ID).get();
-    if (!adminDoc.exists) {
+    const adminDocRef = doc(serverDb, ADMIN_USERS_COL, ADMIN_DOC_ID);
+    const adminSnap = await getDoc(adminDocRef);
+    if (!adminSnap.exists()) {
       console.log('[Firestore] Seeding default admin account...');
-      await db.collection(ADMIN_USERS_COL).doc(ADMIN_DOC_ID).set(defaultAdminSeed);
+      await setDoc(adminDocRef, defaultAdminSeed);
       console.log('[Firestore] Seeded admin account.');
     }
 
@@ -103,10 +118,10 @@ export async function ensureFirestoreSeeded(): Promise<void> {
 export async function getFirestoreCategories(): Promise<MenuCategory[]> {
   try {
     await ensureFirestoreSeeded();
-    const db = getAdminFirestore();
-    const snapshot = await db.collection(CATEGORIES_COL).orderBy('order', 'asc').get();
+    const catQuery = query(collection(serverDb, CATEGORIES_COL), orderBy('order', 'asc'));
+    const snapshot = await getDocs(catQuery);
     if (snapshot.empty) return defaultCategories;
-    return snapshot.docs.map((doc) => doc.data() as MenuCategory);
+    return snapshot.docs.map((d) => d.data() as MenuCategory);
   } catch (err) {
     console.error('[Firestore] Error getting categories:', err);
     return defaultCategories;
@@ -115,8 +130,7 @@ export async function getFirestoreCategories(): Promise<MenuCategory[]> {
 
 export async function saveFirestoreCategory(category: MenuCategory): Promise<boolean> {
   try {
-    const db = getAdminFirestore();
-    await db.collection(CATEGORIES_COL).doc(category.id).set({
+    await setDoc(doc(serverDb, CATEGORIES_COL, category.id), {
       ...category,
       updatedAt: Date.now(),
     });
@@ -129,8 +143,7 @@ export async function saveFirestoreCategory(category: MenuCategory): Promise<boo
 
 export async function deleteFirestoreCategory(categoryId: string): Promise<boolean> {
   try {
-    const db = getAdminFirestore();
-    await db.collection(CATEGORIES_COL).doc(categoryId).delete();
+    await deleteDoc(doc(serverDb, CATEGORIES_COL, categoryId));
     return true;
   } catch (err) {
     console.error('[Firestore] Error deleting category:', err);
@@ -144,10 +157,9 @@ export async function deleteFirestoreCategory(categoryId: string): Promise<boole
 export async function getFirestoreMenuItems(): Promise<MenuItem[]> {
   try {
     await ensureFirestoreSeeded();
-    const db = getAdminFirestore();
-    const snapshot = await db.collection(MENU_ITEMS_COL).get();
+    const snapshot = await getDocs(collection(serverDb, MENU_ITEMS_COL));
     if (snapshot.empty) return defaultMenuItems;
-    return snapshot.docs.map((doc) => doc.data() as MenuItem);
+    return snapshot.docs.map((d) => d.data() as MenuItem);
   } catch (err) {
     console.error('[Firestore] Error getting menu items:', err);
     return defaultMenuItems;
@@ -156,8 +168,7 @@ export async function getFirestoreMenuItems(): Promise<MenuItem[]> {
 
 export async function saveFirestoreMenuItem(item: MenuItem): Promise<boolean> {
   try {
-    const db = getAdminFirestore();
-    await db.collection(MENU_ITEMS_COL).doc(item.id).set({
+    await setDoc(doc(serverDb, MENU_ITEMS_COL, item.id), {
       ...item,
       updatedAt: Date.now(),
     });
@@ -170,8 +181,7 @@ export async function saveFirestoreMenuItem(item: MenuItem): Promise<boolean> {
 
 export async function deleteFirestoreMenuItem(itemId: string): Promise<boolean> {
   try {
-    const db = getAdminFirestore();
-    await db.collection(MENU_ITEMS_COL).doc(itemId).delete();
+    await deleteDoc(doc(serverDb, MENU_ITEMS_COL, itemId));
     return true;
   } catch (err) {
     console.error('[Firestore] Error deleting menu item:', err);
@@ -185,10 +195,9 @@ export async function deleteFirestoreMenuItem(itemId: string): Promise<boolean> 
 export async function getFirestoreCafeSettings(): Promise<CafeSettings> {
   try {
     await ensureFirestoreSeeded();
-    const db = getAdminFirestore();
-    const doc = await db.collection(SETTINGS_COL).doc(SETTINGS_DOC_ID).get();
-    if (doc.exists) {
-      return doc.data() as CafeSettings;
+    const snap = await getDoc(doc(serverDb, SETTINGS_COL, SETTINGS_DOC_ID));
+    if (snap.exists()) {
+      return snap.data() as CafeSettings;
     }
     return defaultCafeSettings;
   } catch (err) {
@@ -199,8 +208,7 @@ export async function getFirestoreCafeSettings(): Promise<CafeSettings> {
 
 export async function saveFirestoreCafeSettings(settings: CafeSettings): Promise<boolean> {
   try {
-    const db = getAdminFirestore();
-    await db.collection(SETTINGS_COL).doc(SETTINGS_DOC_ID).set({
+    await setDoc(doc(serverDb, SETTINGS_COL, SETTINGS_DOC_ID), {
       ...settings,
       updatedAt: Date.now(),
     });
@@ -216,12 +224,9 @@ export async function saveFirestoreCafeSettings(settings: CafeSettings): Promise
 // ==========================================
 export async function getFirestoreOrders(): Promise<CustomerOrder[]> {
   try {
-    const db = getAdminFirestore();
-    const snapshot = await db
-      .collection(ORDERS_COL)
-      .orderBy('createdAtTimestamp', 'desc')
-      .get();
-    return snapshot.docs.map((doc) => doc.data() as CustomerOrder);
+    const ordersQuery = query(collection(serverDb, ORDERS_COL), orderBy('createdAtTimestamp', 'desc'));
+    const snapshot = await getDocs(ordersQuery);
+    return snapshot.docs.map((d) => d.data() as CustomerOrder);
   } catch (err) {
     console.error('[Firestore] Error getting orders:', err);
     return [];
@@ -230,10 +235,9 @@ export async function getFirestoreOrders(): Promise<CustomerOrder[]> {
 
 export async function getFirestoreOrderById(orderId: string): Promise<CustomerOrder | null> {
   try {
-    const db = getAdminFirestore();
-    const doc = await db.collection(ORDERS_COL).doc(orderId).get();
-    if (doc.exists) {
-      return doc.data() as CustomerOrder;
+    const snap = await getDoc(doc(serverDb, ORDERS_COL, orderId));
+    if (snap.exists()) {
+      return snap.data() as CustomerOrder;
     }
     return null;
   } catch (err) {
@@ -244,8 +248,7 @@ export async function getFirestoreOrderById(orderId: string): Promise<CustomerOr
 
 export async function createFirestoreOrder(order: CustomerOrder): Promise<boolean> {
   try {
-    const db = getAdminFirestore();
-    await db.collection(ORDERS_COL).doc(order.id).set({
+    await setDoc(doc(serverDb, ORDERS_COL, order.id), {
       ...order,
       createdAtTimestamp: order.createdAt ? new Date(order.createdAt).getTime() : Date.now(),
     });
@@ -258,8 +261,7 @@ export async function createFirestoreOrder(order: CustomerOrder): Promise<boolea
 
 export async function updateFirestoreOrderStatus(orderId: string, status: OrderStatus): Promise<boolean> {
   try {
-    const db = getAdminFirestore();
-    await db.collection(ORDERS_COL).doc(orderId).update({
+    await updateDoc(doc(serverDb, ORDERS_COL, orderId), {
       status,
       updatedAt: Date.now(),
     });
@@ -276,10 +278,9 @@ export async function updateFirestoreOrderStatus(orderId: string, status: OrderS
 export async function getFirestoreAdminUser(): Promise<StoredAdminUser> {
   try {
     await ensureFirestoreSeeded();
-    const db = getAdminFirestore();
-    const doc = await db.collection(ADMIN_USERS_COL).doc(ADMIN_DOC_ID).get();
-    if (doc.exists) {
-      return doc.data() as StoredAdminUser;
+    const snap = await getDoc(doc(serverDb, ADMIN_USERS_COL, ADMIN_DOC_ID));
+    if (snap.exists()) {
+      return snap.data() as StoredAdminUser;
     }
     return defaultAdminSeed;
   } catch (err) {
@@ -293,8 +294,8 @@ export async function updateFirestoreAdminPassword(
   newPasswordHash: string
 ): Promise<boolean> {
   try {
-    const db = getAdminFirestore();
-    await db.collection(ADMIN_USERS_COL).doc(ADMIN_DOC_ID).set(
+    await setDoc(
+      doc(serverDb, ADMIN_USERS_COL, ADMIN_DOC_ID),
       {
         salt: newSalt,
         passwordHash: newPasswordHash,
@@ -308,3 +309,4 @@ export async function updateFirestoreAdminPassword(
     return false;
   }
 }
+

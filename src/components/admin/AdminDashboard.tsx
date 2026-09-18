@@ -22,6 +22,7 @@ import {
   IceCream,
   Info,
   Layers,
+  Loader2,
   Lock,
   LogOut,
   MapPin,
@@ -146,6 +147,52 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
     variants: [],
     options: [],
   });
+
+  // Dish Image Upload State for Edit/Create Modal
+  const itemFileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string>('');
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [imageUploadError, setImageUploadError] = useState<string | null>(null);
+  const [isDraggingDishImage, setIsDraggingDishImage] = useState(false);
+  const [showManualUrlInput, setShowManualUrlInput] = useState(false);
+
+  // Validate and read selected dish image file
+  const validateAndProcessDishImage = (file: File) => {
+    setImageUploadError(null);
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type.toLowerCase())) {
+      setImageUploadError('Invalid format. Please select a JPG, JPEG, PNG, or WEBP image.');
+      return;
+    }
+
+    const maxBytes = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxBytes) {
+      setImageUploadError(`Image is too large (${(file.size / (1024 * 1024)).toFixed(1)}MB). Max allowed size is 5MB.`);
+      return;
+    }
+
+    setSelectedImageFile(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = (e.target?.result as string) || '';
+      setImagePreviewUrl(result);
+    };
+    reader.onerror = () => {
+      setImageUploadError('Failed to read selected image file. Please try another image.');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveDishImage = () => {
+    setSelectedImageFile(null);
+    setImagePreviewUrl('');
+    setFormData((prev) => ({ ...prev, image: '' }));
+    setImageUploadError(null);
+    if (itemFileInputRef.current) {
+      itemFileInputRef.current.value = '';
+    }
+  };
 
   // Cafe info local form
   const [localCafe, setLocalCafe] = useState(cafeSettings);
@@ -301,6 +348,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
       variants: item.variants ? [...item.variants] : [],
       options: item.options ? [...item.options] : [],
     });
+    setSelectedImageFile(null);
+    setImagePreviewUrl(item.image || '');
+    setImageUploadError(null);
+    setIsUploadingImage(false);
+    setIsDraggingDishImage(false);
+    setShowManualUrlInput(!item.image || item.image.startsWith('http'));
+    if (itemFileInputRef.current) {
+      itemFileInputRef.current.value = '';
+    }
     setIsNewItemModalOpen(true);
   };
 
@@ -323,20 +379,70 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
       variants: [],
       options: [],
     });
+    setSelectedImageFile(null);
+    setImagePreviewUrl('');
+    setImageUploadError(null);
+    setIsUploadingImage(false);
+    setIsDraggingDishImage(false);
+    setShowManualUrlInput(false);
+    if (itemFileInputRef.current) {
+      itemFileInputRef.current.value = '';
+    }
     setIsNewItemModalOpen(true);
   };
 
-  // Save Item (Create or Update)
-  const handleSaveItem = (e: React.FormEvent) => {
+  // Save Item (Create or Update with Image Upload Handling)
+  const handleSaveItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name?.trim() || !formData.categoryId) return;
+    if (isUploadingImage) return;
+
+    let finalImageUrl = formData.image?.trim() || '';
+
+    // If the admin selected a local file from their laptop, upload it to the backend first
+    if (selectedImageFile && imagePreviewUrl && imagePreviewUrl.startsWith('data:')) {
+      setIsUploadingImage(true);
+      setImageUploadError(null);
+      try {
+        const uploadRes = await fetch('/api/admin/upload-image', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            image: imagePreviewUrl,
+            fileName: selectedImageFile.name,
+          }),
+        });
+
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok || !uploadData.success || !uploadData.url) {
+          setImageUploadError(uploadData.error || 'Failed to upload image. Please try again.');
+          setIsUploadingImage(false);
+          return;
+        }
+
+        finalImageUrl = uploadData.url;
+      } catch (err: any) {
+        console.error('Image upload failed:', err);
+        setImageUploadError('Network error while uploading image. Please check your connection.');
+        setIsUploadingImage(false);
+        return;
+      }
+    } else if (!finalImageUrl && imagePreviewUrl && (imagePreviewUrl.startsWith('http') || imagePreviewUrl.startsWith('/uploads/'))) {
+      finalImageUrl = imagePreviewUrl.trim();
+    }
 
     const catName = categories.find((c) => c.id === formData.categoryId)?.name || formData.categoryId;
+    const finalItemData: MenuItem = {
+      ...(formData as MenuItem),
+      image: finalImageUrl,
+    };
 
     if (editingItem) {
       const oldCatId = editingItem.categoryId;
       const newCatId = formData.categoryId;
-      updateMenuItem(formData as MenuItem);
+      updateMenuItem(finalItemData);
 
       if (oldCatId !== newCatId) {
         showSuccessNotice(`Updated "${formData.name}" and moved to ${catName}.`);
@@ -344,13 +450,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
         showSuccessNotice(`Updated "${formData.name}" successfully.`);
       }
     } else {
-      const { id: _ignoredId, ...rest } = formData as MenuItem;
+      const { id: _ignoredId, ...rest } = finalItemData;
       addMenuItem(rest);
       showSuccessNotice(`Added "${formData.name}" to ${catName}.`);
     }
 
+    setIsUploadingImage(false);
     setIsNewItemModalOpen(false);
     setEditingItem(null);
+    setSelectedImageFile(null);
+    setImagePreviewUrl('');
+    setImageUploadError(null);
   };
 
   // Handle Category Management
@@ -1616,60 +1726,221 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
               </div>
 
               <form onSubmit={handleSaveItem} className="space-y-4 text-xs">
-                <div>
-                  <label className="block font-semibold text-stone-300 mb-1">
-                    Dish Name <span className="text-amber-400">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.name || ''}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g. Chicken Chow Mein"
-                    className="w-full px-3 py-2 rounded-xl border border-stone-800 bg-stone-950 text-stone-100 text-sm font-medium focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-semibold text-stone-300 mb-1">
-                    Assigned Menu Category <span className="text-amber-400">*</span>
-                  </label>
-                  <select
-                    value={formData.categoryId || categories[0]?.id}
-                    onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-stone-800 bg-stone-950 text-stone-100 text-sm font-medium focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 outline-none"
-                  >
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-semibold text-stone-300 mb-1">Base Price (Rs.)</label>
+                    <label className="block font-semibold text-stone-300 mb-1">
+                      Dish Name <span className="text-amber-400">*</span>
+                    </label>
                     <input
-                      type="number"
+                      type="text"
                       required
-                      value={formData.price || 0}
-                      onChange={(e) =>
-                        setFormData({ ...formData, price: parseInt(e.target.value) || 0 })
-                      }
-                      className="w-full px-3 py-2 rounded-xl border border-stone-800 bg-stone-950 text-amber-400 text-sm font-bold focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 outline-none"
+                      value={formData.name || ''}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="e.g. Chicken Chow Mein"
+                      className="w-full px-3 py-2 rounded-xl border border-stone-800 bg-stone-950 text-stone-100 text-sm font-medium focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-semibold text-stone-300 mb-1">Image URL</label>
-                    <input
-                      type="url"
-                      value={formData.image || ''}
-                      onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                      placeholder="https://..."
-                      className="w-full px-3 py-2 rounded-xl border border-stone-800 bg-stone-950 text-stone-100 text-sm focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 outline-none"
-                    />
+                    <label className="block font-semibold text-stone-300 mb-1">
+                      Assigned Menu Category <span className="text-amber-400">*</span>
+                    </label>
+                    <select
+                      value={formData.categoryId || categories[0]?.id}
+                      onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
+                      className="w-full px-3 py-2 rounded-xl border border-stone-800 bg-stone-950 text-stone-100 text-sm font-medium focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 outline-none"
+                    >
+                      {categories.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-stone-300 mb-1">
+                    Base Price (Rs.) <span className="text-amber-400">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    min={0}
+                    value={formData.price || 0}
+                    onChange={(e) =>
+                      setFormData({ ...formData, price: parseInt(e.target.value) || 0 })
+                    }
+                    className="w-full px-3 py-2 rounded-xl border border-stone-800 bg-stone-950 text-amber-400 text-sm font-bold focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 outline-none"
+                  />
+                </div>
+
+                {/* IMAGE UPLOAD SECTION */}
+                <div>
+                  <label className="block font-semibold text-stone-300 mb-1.5 flex items-center justify-between">
+                    <span>Dish Image</span>
+                    {imagePreviewUrl ? (
+                      <span className="text-[10px] text-amber-400/90 font-medium">
+                        {selectedImageFile ? 'Ready to upload on save' : 'Current active image'}
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-stone-500">Optional</span>
+                    )}
+                  </label>
+
+                  {/* Hidden Native File Input */}
+                  <input
+                    ref={itemFileInputRef}
+                    type="file"
+                    accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        validateAndProcessDishImage(file);
+                      }
+                    }}
+                  />
+
+                  {/* Image Preview or Drag/Drop Area */}
+                  {imagePreviewUrl ? (
+                    <div className="p-3 rounded-2xl bg-stone-950 border border-stone-800 space-y-3">
+                      <div className="relative w-full h-44 rounded-xl overflow-hidden bg-stone-900 border border-stone-800/80 group">
+                        <img
+                          src={imagePreviewUrl}
+                          alt="Dish preview"
+                          referrerPolicy="no-referrer"
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => itemFileInputRef.current?.click()}
+                            className="px-3 py-1.5 rounded-lg bg-amber-500 text-stone-950 font-bold text-xs flex items-center gap-1.5 shadow-md hover:bg-amber-400 cursor-pointer"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                            <span>Change Image</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2 pt-0.5">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" />
+                          <p className="text-[11px] text-stone-300 font-medium truncate">
+                            {selectedImageFile
+                              ? selectedImageFile.name
+                              : formData.image
+                              ? 'Active Dish Image'
+                              : 'Selected Image'}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => itemFileInputRef.current?.click()}
+                            className="px-2.5 py-1.5 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-200 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-stone-700"
+                          >
+                            <Upload className="w-3.5 h-3.5 text-amber-400" />
+                            <span>Change</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleRemoveDishImage}
+                            className="px-2.5 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-red-500/20"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Remove</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        setIsDraggingDishImage(true);
+                      }}
+                      onDragLeave={() => setIsDraggingDishImage(false)}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        setIsDraggingDishImage(false);
+                        const file = e.dataTransfer.files?.[0];
+                        if (file) {
+                          validateAndProcessDishImage(file);
+                        }
+                      }}
+                      onClick={() => itemFileInputRef.current?.click()}
+                      className={`p-6 rounded-2xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center text-center ${
+                        isDraggingDishImage
+                          ? 'border-amber-500 bg-amber-500/10'
+                          : 'border-stone-800 hover:border-amber-500/60 bg-stone-950/60 hover:bg-stone-950'
+                      }`}
+                    >
+                      <div className="w-12 h-12 rounded-2xl bg-stone-900 border border-stone-800 flex items-center justify-center text-amber-400 mb-2.5 shadow-inner">
+                        <Upload className="w-6 h-6" />
+                      </div>
+                      <p className="text-sm font-bold text-stone-200 mb-0.5">
+                        Upload Menu Image
+                      </p>
+                      <p className="text-xs text-stone-400 mb-1">
+                        Click to browse from computer or drag & drop here
+                      </p>
+                      <p className="text-[10px] text-stone-500 uppercase tracking-wider font-semibold">
+                        JPG, JPEG, PNG, WEBP • Max 5MB
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Error Message */}
+                  {imageUploadError && (
+                    <div className="mt-2 p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 flex items-start gap-2 text-xs">
+                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                      <span>{imageUploadError}</span>
+                    </div>
+                  )}
+
+                  {/* Alternative: Paste Image URL */}
+                  <div className="mt-2.5 pt-2 border-t border-stone-800/60">
+                    {!showManualUrlInput ? (
+                      <button
+                        type="button"
+                        onClick={() => setShowManualUrlInput(true)}
+                        className="text-[11px] text-amber-400/90 hover:text-amber-300 font-medium flex items-center gap-1 cursor-pointer transition-colors"
+                      >
+                        <span>+ Or paste an image URL directly</span>
+                      </button>
+                    ) : (
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between">
+                          <label className="text-[11px] font-semibold text-stone-400">
+                            Image URL (Alternative)
+                          </label>
+                          <button
+                            type="button"
+                            onClick={() => setShowManualUrlInput(false)}
+                            className="text-[10px] text-stone-500 hover:text-stone-300 cursor-pointer"
+                          >
+                            Hide URL input
+                          </button>
+                        </div>
+                        <input
+                          type="url"
+                          value={formData.image || ''}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setFormData({ ...formData, image: val });
+                            if (val.trim()) {
+                              setImagePreviewUrl(val.trim());
+                              setSelectedImageFile(null);
+                            }
+                          }}
+                          placeholder="https://images.unsplash.com/..."
+                          className="w-full px-3 py-1.5 rounded-xl border border-stone-800 bg-stone-950 text-stone-100 text-xs focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 outline-none font-mono"
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -1751,9 +2022,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate }) =>
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-stone-950 font-bold transition-colors shadow-md cursor-pointer"
+                    disabled={isUploadingImage}
+                    className="px-6 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-stone-950 font-bold transition-colors shadow-md cursor-pointer flex items-center gap-2"
                   >
-                    Save Dish
+                    {isUploadingImage ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>Saving Dish...</span>
+                      </>
+                    ) : (
+                      <span>Save Dish</span>
+                    )}
                   </button>
                 </div>
               </form>
