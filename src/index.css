@@ -258,3 +258,12 @@ html.light-mode ::-webkit-scrollbar-thumb {
 html.light-mode ::-webkit-scrollbar-thumb:hover {
   background: #A89D8B;
 }
+
+/* Hide scrollbar for clean horizontal nav scrolling on mobile */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
